@@ -1,11 +1,13 @@
-def handicap(games) -> list[float]:
+def handicap(games, course) -> list[float]:
     """calculates the handicap given 0 to 20 games with the gross, net and stable ford value. 
+    Also needs the course on which the game was played to work properly
     Returns a list with 3 elements, where the first is the gross, the second is the net and
     the third the stableford value"""
 
     handicap = [54, 54, 54]  
     numHoles = 0
     for game in games:
+        #TODO this has to be modified once we feed JSONs into the functions
         numHoles += len[game] #shots is the array that tracks the amount of shots per hole
     numGames = len(games)
 
@@ -17,7 +19,8 @@ def handicap(games) -> list[float]:
     for i , func in enumerate(functions):
         differentials = []
         for game in games:
-            value: float = func(game)
+            #TODO this has to be modified once we feed JSONs into the functions
+            value: float = func(game, course)
             differentials.append(value)
         differentials.sort()
         
@@ -56,3 +59,10 @@ def handicapDifferentialStableford() -> float:
 
 shots = [5, 5 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5] #example shots with 18 entries
 games = [shots, shots, shots]
+
+#highest priority at the top
+#TODO add DB for games
+#TODO add courses to DB 
+#TODO fill out the differential functions
+#TODO build packages
+#TODO create ui?
