@@ -57,9 +57,6 @@ def handicapDifferentialStableford() -> float:
     print("a")
 
 
-shots = [5, 5 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5] #example shots with 18 entries
-games = [shots, shots, shots]
-
 #highest priority at the top
 #TODO add DB for games
 #TODO add courses to DB 
