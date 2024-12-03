@@ -97,10 +97,10 @@ DBs = [games_table, courses_table]
 #TODO get last 20 games
 #TODO create handicap package
 #TODO call handicap and handover PCC value
-date = datetime.datetime.now()
-addGame(10, "kot", date.isoformat(), [])
+#date = datetime.datetime.now()
+#addGame(10, "kot", date.isoformat(), [])
 
-getGames()
+#getGames()
 
 
-db.purge_tables()
+#db.purge_tables()
