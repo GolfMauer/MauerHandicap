@@ -58,8 +58,6 @@ def handicapDifferentialStableford() -> float:
 
 
 #highest priority at the top
-#TODO add DB for games
-#TODO add courses to DB 
 #TODO fill out the differential functions
 #TODO build packages
-#TODO create ui?
+#TODO create ui

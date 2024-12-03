@@ -76,31 +76,6 @@ class Golf(TinyDB):
 
         return sorted_games[n:m + 1]
 
-Path("./db/").mkdir(parents=True, exist_ok=True)
 
-#init db and tables
-db = TinyDB('./db/db.json')
-games_table = db.table('games')
-courses_table = db.table('courses')
-
-
-paths = ["./data/games/", "./data/courses/"]
-DBs = [games_table, courses_table]
-
-#insert the data
-#for i in range(len(paths)):
-#    insertFromDir(paths[i], DBs[i])
-
-
-
-#TODO turn data.py into package and move db into test module
-#TODO get last 20 games
 #TODO create handicap package
 #TODO call handicap and handover PCC value
-#date = datetime.datetime.now()
-#addGame(10, "kot", date.isoformat(), [])
-
-#getGames()
-
-
-#db.purge_tables()
