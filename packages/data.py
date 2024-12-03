@@ -21,6 +21,7 @@ class Golf(TinyDB):
             data = json.load(json_file)
             self.insert(data)
 
+
     def addGame(self, handicap: float, courseID: str, date: datetime.datetime | str, shots: list[int]) -> str:
         """
         Adds a new game to tinyDB.
