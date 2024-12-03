@@ -1,0 +1,6 @@
+{
+    "courseId" : "Rainbow Boulevard",
+    "course_rating": 77,
+    "slope_rating": 155,
+    "par": [3, 4, 5, 5, 4, 5, 3, 5, 5, 3, 5, 5, 3, 5, 5, 3, 4, 5]
+}
