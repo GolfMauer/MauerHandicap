@@ -1,52 +1,47 @@
 from tempfile import TemporaryDirectory
-import unittest
+import pytest
 from golfDB import Golf
 
-class TestData(unittest.TestCase):
-    def setUp(self):
-        # Create a temporary directory and database
-        self.temp_dir = TemporaryDirectory()
-        self.db_path = f"{self.temp_dir.name}/test_db.json"
-        self.db = Golf(self.db_path)
-        
-    def insertMockGameData(self):
-        # Insert mock data
-        self.mock_data = [
-            {'id': 1, 'date': '2024-12-01', 'name': 'Game 1'},
-            {'id': 2, 'date': '2024-11-30', 'name': 'Game 2'},
-            {'id': 3, 'date': '2024-11-29', 'name': 'Game 3'}
-        ]
-        self.db.insert_multiple(self.mock_data)
-    
-    def insertMockCourseData(self):
-        # Insert mock data
-        self.mock_data = [
-            {'id': 1, 'date': '2024-12-01', 'name': 'Game 1'},
-            {'id': 2, 'date': '2024-11-30', 'name': 'Game 2'},
-            {'id': 3, 'date': '2024-11-29', 'name': 'Game 3'}
-        ]
-        self.db.insert_multiple(self.mock_data)
+# Fixture to set up and tear down the temporary database
+@pytest.fixture
+def temp_db():
+    with TemporaryDirectory() as temp_dir:
+        db_path = f"{temp_dir}/test_db.json"
+        db = Golf(db_path)
+        yield db
+        db.close()
 
-    def tearDown(self):
-        # Close and clean up the database
-        self.db.close()
-        self.temp_dir.cleanup()
-    
-    def test_insertFromDir(self):
-        db = Golf()
-        db.insertFromDir("../data/courses/")
-        data = db.all()
-        print(data)
-    
-    
-    def test_addGame(self):
-        db = Golf()
-        result = db.addGame()
-    
-    
-    def test_getGame(self):
-        db = Golf()
-        result = db.getGames()
+# Fixture to insert mock game data
+@pytest.fixture
+def mock_game_data(temp_db):
+    mock_data = [
+        {'id': 1, 'date': '2024-12-01', 'name': 'Game 1'},
+        {'id': 2, 'date': '2024-11-30', 'name': 'Game 2'},
+        {'id': 3, 'date': '2024-11-29', 'name': 'Game 3'}
+    ]
+    temp_db.insert_multiple(mock_data)
+    return temp_db
 
-if __name__ == "__main__":
-    unittest.main()
+# Fixture to insert mock course data
+@pytest.fixture
+def mock_course_data(temp_db):
+    mock_data = [
+        {'id': 1, 'date': '2024-12-01', 'name': 'Game 1'},
+        {'id': 2, 'date': '2024-11-30', 'name': 'Game 2'},
+        {'id': 3, 'date': '2024-11-29', 'name': 'Game 3'}
+    ]
+    temp_db.insert_multiple(mock_data)
+    return temp_db
+
+def test_insert_from_dir(temp_db):
+    temp_db.insertFromDir("../data/courses/")
+    data = temp_db.all()
+    assert len(data) > 0  # Adjust assertion based on expected results
+
+def test_add_game(temp_db):
+    result = temp_db.addGame()
+    # Add specific assertions for `result` based on its expected value or side effects
+
+def test_get_games(mock_game_data):
+    result = mock_game_data.getGames()
+    assert len(result) == 3  # Replace with actual expected results

@@ -1,24 +1,22 @@
-import unittest
+import pytest
 import handicap2021
 
-shots = [5, 5 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5] #example shots with 18 entries
-games = [shots, shots, shots]
+def test_handicap():
+    result = handicap2021.handicap()
+    # Add appropriate assertions based on the expected result
+    assert result is not None  # Replace with actual assertion logic
 
-class TestHandicap2021(unittest.TestCase):
-    def test_handicap(self):
-        result = handicap2021.handicap()
-    
-    
-    def test_handicapDifferential():
-        result = handicap2021.handicapDifferential()
-    
-    
-    def test_handicapDifferentialNet():
-        result = handicap2021.handicapDifferentialNet
-    
-    
-    def test_handicapDifferentialStableford():
-        result = handicap2021.handicapDifferentialStableford
+def test_handicap_differential():
+    result = handicap2021.handicapDifferential()
+    # Add appropriate assertions
+    assert result is not None  # Replace with actual assertion logic
 
-if __name__ == "__main__":
-    unittest.main()
+def test_handicap_differential_net():
+    result = handicap2021.handicapDifferentialNet()
+    # Add appropriate assertions
+    assert result is not None  # Replace with actual assertion logic
+
+def test_handicap_differential_stableford():
+    result = handicap2021.handicapDifferentialStableford()
+    # Add appropriate assertions
+    assert result is not None  # Replace with actual assertion logic
