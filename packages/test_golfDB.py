@@ -1,6 +1,28 @@
+from datetime import datetime, timedelta
+import random
 from tempfile import TemporaryDirectory
+import json
+from os import listdir
+from os.path import isfile, join
+
 import pytest
 from golfDB import Golf
+
+#Path("./db/").mkdir(parents=True, exist_ok=True)
+
+#init db and tables
+#db = TinyDB('./db/db.json')
+#games_table = db.table('games')
+#courses_table = db.table('courses')
+
+
+#paths = ["./data/games/", "./data/courses/"]
+#DBs = [games_table, courses_table]
+
+#insert the data
+#for i in range(len(paths)):
+#    insertFromDir(paths[i], DBs[i])
+
 
 # Fixture to set up and tear down the temporary database
 @pytest.fixture
@@ -11,37 +33,133 @@ def temp_db():
         yield db
         db.close()
 
-# Fixture to insert mock game data
+# Fixture to insert one game
 @pytest.fixture
-def mock_game_data(temp_db):
+def one_game(temp_db):
     mock_data = [
-        {'id': 1, 'date': '2024-12-01', 'name': 'Game 1'},
-        {'id': 2, 'date': '2024-11-30', 'name': 'Game 2'},
-        {'id': 3, 'date': '2024-11-29', 'name': 'Game 3'}
+        {
+            "game_id": "1",
+            "handicap": 0.0, 
+            "courseID": "Womp Womp",
+            "date": "2024-12-03T11:41:30.013870",
+            "shots": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5]
+        }
     ]
     temp_db.insert_multiple(mock_data)
     return temp_db
 
-# Fixture to insert mock course data
+
+#fixture to insert 21 games
 @pytest.fixture
-def mock_course_data(temp_db):
-    mock_data = [
-        {'id': 1, 'date': '2024-12-01', 'name': 'Game 1'},
-        {'id': 2, 'date': '2024-11-30', 'name': 'Game 2'},
-        {'id': 3, 'date': '2024-11-29', 'name': 'Game 3'}
-    ]
+def multiple_games(temp_db):
+    # Generate mock data with 21 entries
+    mock_data = []
+    base_date = datetime(2024, 12, 3, 11, 41, 30)
+    course_names = ["Womp Womp", "Sunny Links", "Green Meadow", "Pine Valley"]
+    
+    for i in range(1, 22):
+        mock_data.append({
+            "game_id": str(i),
+            "handicap": round(random.uniform(-2.0, 5.0), 1),
+            "courseID": random.choice(course_names),
+            "date": (base_date - timedelta(days=i)).isoformat(),
+            "shots": [random.randint(3, 6) for _ in range(18)]
+        })
+
     temp_db.insert_multiple(mock_data)
     return temp_db
 
 def test_insert_from_dir(temp_db):
-    temp_db.insertFromDir("../data/courses/")
+    path = "data/courses/"
+    temp_db.insertFromDir(path)
+    db_data = temp_db.all()
+    arr = []
+    
+    files = [file for file in listdir(path) if isfile(join(path, file))]
+
+    for file in files:
+        json_file = open(path + file, "r")
+        data = json.load(json_file)
+        arr.append(data)
+
+    assert db_data == arr 
+
+
+
+def test_add_game_datetime(temp_db):
+    date = datetime.now()
+    handicap = 15.3
+    id = "Womp Womp"
+    shots = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    uuid = temp_db.addGame(handicap, id, date, shots)
+    
+
     data = temp_db.all()
-    assert len(data) > 0  # Adjust assertion based on expected results
+    data = data[0]
 
-def test_add_game(temp_db):
-    result = temp_db.addGame()
-    # Add specific assertions for `result` based on its expected value or side effects
+    assert data["handicap"] == handicap 
+    assert data["courseID"] == id 
+    assert data["date"] == date.isoformat()
+    assert data["shots"] == shots
+    assert uuid != ""
 
-def test_get_games(mock_game_data):
-    result = mock_game_data.getGames()
-    assert len(result) == 3  # Replace with actual expected results
+
+def test_add_game_isoString(temp_db):
+    date = datetime.now().isoformat()
+    handicap = 15.3
+    id = "Womp Womp"
+    shots = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    uuid = temp_db.addGame(handicap, id, date, shots)
+    
+
+    data = temp_db.all()
+    data = data[0]
+
+    assert data["handicap"] == handicap 
+    assert data["courseID"] == id 
+    assert data["date"] == date
+    assert data["shots"] == shots
+    assert uuid != ""
+
+
+
+def test_get_games_empty (temp_db):
+    result = temp_db.getGames()
+    assert result == []
+
+
+def test_get_games_m_to_large (one_game):
+    result = one_game.getGames(0, 3)
+    assert len(result) != 0 and len(result) < 3
+
+def test_get_games_n_to_large (one_game):
+    result = one_game.getGames(3, 4)
+    assert result == []
+
+def test_get_games_n_equal_m (one_game):
+    result = one_game.getGames(0, 0)
+    assert len(result) == 1
+
+
+def test_get_games_n_larger_m (multiple_games):
+    result = multiple_games.getGames(3, 0)
+    assert len(result) == 1
+
+def test_get_games(multiple_games):
+    result = multiple_games.getGames()
+    assert len(result) == 20
+
+def test_get_games_sorted(multiple_games):
+    result = multiple_games.getGames()
+
+    sorted_games = sorted(
+        result, 
+        key=lambda x: datetime.fromisoformat(x['date']), 
+        reverse=True)
+    
+    assert result == sorted_games
+
+def test_get_games_slicing(multiple_games):
+    result = multiple_games.getGames(3, 6)
+    games = multiple_games.getGames()
+    assert result == games[3:7]

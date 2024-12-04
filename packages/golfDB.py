@@ -3,7 +3,6 @@ import json
 import datetime
 from os import listdir
 from os.path import isfile, join
-from pathlib import Path
 import uuid
 
 class Golf(TinyDB):
@@ -48,7 +47,7 @@ class Golf(TinyDB):
         return id.hex
 
 
-    def getGames(self, n: int = 0, m: int = 20) -> list[dict]:
+    def getGames(self, n: int = 0, m: int = 19) -> list[dict]:
         """
         returns the games n to m (inclusive), where n is the lowest index and m is the highest index.
         Defaults to the last 20 games or less if there are less than 20 games
