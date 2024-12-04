@@ -8,21 +8,6 @@ from os.path import isfile, join
 import pytest
 from golfDB import Golf
 
-#Path("./db/").mkdir(parents=True, exist_ok=True)
-
-#init db and tables
-#db = TinyDB('./db/db.json')
-#games_table = db.table('games')
-#courses_table = db.table('courses')
-
-
-#paths = ["./data/games/", "./data/courses/"]
-#DBs = [games_table, courses_table]
-
-#insert the data
-#for i in range(len(paths)):
-#    insertFromDir(paths[i], DBs[i])
-
 
 # Fixture to set up and tear down the temporary database
 @pytest.fixture
@@ -60,7 +45,7 @@ def multiple_games(temp_db):
     for i in range(1, 22):
         mock_data.append({
             "game_id": str(i),
-            "handicap": round(random.uniform(-2.0, 5.0), 1),
+            "handicap": round(random.uniform(0.0, 54.0), 1),
             "courseID": random.choice(course_names),
             "date": (base_date - timedelta(days=i)).isoformat(),
             "shots": [random.randint(3, 6) for _ in range(18)]
@@ -68,6 +53,7 @@ def multiple_games(temp_db):
 
     temp_db.insert_multiple(mock_data)
     return temp_db
+
 
 def test_insert_from_dir(temp_db):
     path = "data/courses/"
