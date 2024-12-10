@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import random
+import re
 from tempfile import TemporaryDirectory
 import json
 from os import listdir
@@ -70,6 +71,32 @@ def test_insert_from_dir(temp_db):
 
     assert db_data == arr 
 
+
+def test_add_course(temp_db):
+    id = "Nimons Boulevard"
+    courseRating = 67
+    slopeRating = 113
+    par = [3, 4, 5]
+    temp_db.addCourse(id, courseRating, slopeRating, par)
+    
+    data = temp_db.all()
+    data = data[0]
+    
+    assert data["course_id"] == id
+    assert data["course_rating"] == courseRating
+    assert data["slope_rating"] == slopeRating
+    assert data["par"] == par
+
+
+def test_add_course_slope_outOfBounds(temp_db):
+    id = "Nimons Boulevard"
+    courseRating = 67
+    slopeRating = 0 # Invalid slope
+    par = [3, 4, 5]
+
+    expected_message = f"Invalid parameter: {slopeRating}. Must be between 55 and 155."
+    with pytest.raises(ValueError, match=re.escape(expected_message)):
+        temp_db.addCourse(id, courseRating, slopeRating, par)
 
 
 def test_add_game_datetime(temp_db):

@@ -34,7 +34,7 @@ class MauerDB(TinyDB):
         None
         """
 
-        if not (slopeRating >= 55 and slopeRating <= 155):
+        if not (55 <= slopeRating <= 155):
             raise ValueError(f"Invalid parameter: {slopeRating}. Must be between 55 and 155.")
         data = {"course_id": courseID,
                 "course_rating": courseRating,
