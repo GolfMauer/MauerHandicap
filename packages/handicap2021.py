@@ -1,14 +1,16 @@
-def handicap(games) -> list[float]:
+def handicap(games: list[dict], courses: list[dict]) -> list[float]:
     """calculates the handicap given 0 to 20 games with the gross, net and stable ford value. 
     Also needs the course on which the game was played to work properly
     Returns a list with 3 elements, where the first is the gross, the second is the net and
     the third the stableford value"""
 
+    if not (len(games) <= 20):
+        raise ValueError(f"Invalid parameter: len(games) = {len(games)}. You can only add a max of 20 games.")
+
     handicap = [54, 54, 54]  
     numHoles = 0
     for game in games:
-        #TODO this has to be modified once we feed JSONs into the functions
-        numHoles += len[game] #shots is the array that tracks the amount of shots per hole
+        numHoles += len[game["shots"]] #shots is the array that tracks the amount of shots per hole
     numGames = len(games)
 
     if numHoles < 54:
@@ -19,8 +21,8 @@ def handicap(games) -> list[float]:
     for i , func in enumerate(functions):
         differentials = []
         for game in games:
-            #TODO this has to be modified once we feed JSONs into the functions
-            value: float = func(game, course)
+            course = [course for course in courses if course["courseID"] == game["courseID"]]
+            value: float = func(game, course[0])
             differentials.append(value)
         differentials.sort()
         
