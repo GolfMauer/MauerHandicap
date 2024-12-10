@@ -21,7 +21,7 @@ class MauerDB(TinyDB):
             self.insert(data)
 
 
-    def addGame(self, handicap: float, courseID: str, date: datetime.datetime | str, shots: list[int]) -> str:
+    def addGame(self, handicap: float, courseID: str, date: datetime.datetime | str, shots: list[int], pcc: float) -> str:
         """
         Adds a new game to tinyDB.
 
@@ -40,7 +40,8 @@ class MauerDB(TinyDB):
                 "handicap": handicap, 
                 "courseID": courseID,
                 "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date , 
-                "shots": shots
+                "shots": shots,
+                "pcc": pcc
         }
         self.insert(game)
 

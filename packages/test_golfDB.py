@@ -77,7 +77,8 @@ def test_add_game_datetime(temp_db):
     handicap = 15.3
     id = "Womp Womp"
     shots = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    uuid = temp_db.addGame(handicap, id, date, shots)
+    pcc = 2.0
+    uuid = temp_db.addGame(handicap, id, date, shots, pcc)
     
 
     data = temp_db.all()
@@ -88,14 +89,15 @@ def test_add_game_datetime(temp_db):
     assert data["date"] == date.isoformat()
     assert data["shots"] == shots
     assert uuid != ""
-
+    assert data["pcc"] == pcc
 
 def test_add_game_isoString(temp_db):
     date = datetime.now().isoformat()
     handicap = 15.3
     id = "Womp Womp"
     shots = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    uuid = temp_db.addGame(handicap, id, date, shots)
+    pcc = 2.0
+    uuid = temp_db.addGame(handicap, id, date, shots, pcc)
     
 
     data = temp_db.all()
@@ -106,7 +108,7 @@ def test_add_game_isoString(temp_db):
     assert data["date"] == date
     assert data["shots"] == shots
     assert uuid != ""
-
+    assert data["pcc"] == pcc
 
 
 def test_get_games_empty (temp_db):
