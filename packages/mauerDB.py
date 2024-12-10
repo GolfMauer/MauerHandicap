@@ -1,4 +1,4 @@
-from tinydb import TinyDB
+from tinydb import TinyDB, Query
 import json
 import datetime
 from os import listdir
@@ -97,6 +97,28 @@ class MauerDB(TinyDB):
         m = min(len(sorted_games) - 1, max(n, m))  # Ensure m is within bounds and >= n
 
         return sorted_games[n:m + 1]
+    
+    
+    def getCourses(self, games: list[dict]) -> list[dict]:
+        """
+        returns the courses played given n games
+
+        Args:
+        games (list[dict]): The games relevant for the query
+
+        Returns:
+        List[dict]: A list of courses played.
+        """
+
+        unique_courses = {game["course_ID"] for game in games}  # Use a set for unique course IDs
+        query = Query()
+
+        result = []
+        for course_id in unique_courses:
+            data = self.table.search(query.courseID == course_id)  # Assuming self.table is a TinyDB table
+            result.extend(data)  # Extend the result list with the search results
+
+        return result
 
 
 #TODO create handicap package
