@@ -20,6 +20,28 @@ class MauerDB(TinyDB):
             data = json.load(json_file)
             self.insert(data)
 
+    def addCourse(self, courseID: str, courseRating: int, slopeRating: int, par: list[int]) -> None:
+        """
+        Adds a new game to tinyDB.
+
+        Args:
+        courseID (str): e.g. the name of the course
+        courseRating (int): The difficulty rating of the course usually between 67 and 77. Should be the sum of the par's if I understand it correctly
+        slopeRating (int): The difficulty rating of the course, between 55 and 155 with the average being 113
+        par (list[int]): The shots that that are expected for each hole
+        
+        Returns:
+        None
+        """
+
+        if not (slopeRating >= 55 and slopeRating <= 155):
+            raise ValueError(f"Invalid parameter: {slopeRating}. Must be between 55 and 155.")
+        data = {"course_id": courseID,
+                "course_rating": courseRating,
+                "slope_rating": slopeRating, 
+                "par": par
+        }
+        self.insert(data)
 
     def addGame(self, handicap: float, courseID: str, date: datetime.datetime | str, shots: list[int], pcc: float) -> str:
         """
