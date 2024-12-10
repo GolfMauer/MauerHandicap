@@ -6,7 +6,7 @@ from os import listdir
 from os.path import isfile, join
 
 import pytest
-from golfDB import Golf
+from mauerDB import MauerDB
 
 
 # Fixture to set up and tear down the temporary database
@@ -14,7 +14,7 @@ from golfDB import Golf
 def temp_db():
     with TemporaryDirectory() as temp_dir:
         db_path = f"{temp_dir}/test_db.json"
-        db = Golf(db_path)
+        db = MauerDB(db_path)
         yield db
         db.close()
 

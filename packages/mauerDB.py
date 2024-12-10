@@ -5,7 +5,7 @@ from os import listdir
 from os.path import isfile, join
 import uuid
 
-class Golf(TinyDB):
+class MauerDB(TinyDB):
     def insertFromDir(self, path: str) -> None:
         """
         Inserts all the files in the given directory into the given db/table

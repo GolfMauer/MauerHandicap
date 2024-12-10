@@ -1,4 +1,4 @@
-def handicap(games, course) -> list[float]:
+def handicap(games) -> list[float]:
     """calculates the handicap given 0 to 20 games with the gross, net and stable ford value. 
     Also needs the course on which the game was played to work properly
     Returns a list with 3 elements, where the first is the gross, the second is the net and
