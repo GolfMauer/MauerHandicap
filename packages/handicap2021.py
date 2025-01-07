@@ -59,19 +59,26 @@ def handicapDifferential(game: dict, course: dict) -> float:
     return ((shots - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
 
 
-def handicapDifferentialNet(game: dict, course: dict) -> float:
+def handicapDifferentialNet(handicap: float, game: dict, course: dict) -> float:
     """
     calculates the handicap differential for one game using net shots.
     Often used for more casual games can not be used for the Handicap without conversion
 
     Args:
+    handicap (float): The players current handicap
     game (dict): The game the calculation is being done on.
     course (dict): The course corresponding to the game.
 
     Returns:
-    float: gross handicap differential
+    float: net handicap differential
     """
-    print("a")
+    net = sum(game["shots"]) - handicap
+    mockGame = {
+        "shots": [net],
+        "pcc": game["pcc"]
+    },
+
+    return handicapDifferential(mockGame, course)
 
 
 def handicapDifferentialStableford(game: dict, course: dict) -> float:
@@ -84,7 +91,7 @@ def handicapDifferentialStableford(game: dict, course: dict) -> float:
     course (dict): The course corresponding to the game.
 
     Returns:
-    float: gross handicap differential
+    float: stableford points
     """
     print("a")
 
