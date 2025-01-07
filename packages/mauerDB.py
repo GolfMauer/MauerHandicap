@@ -43,27 +43,34 @@ class MauerDB(TinyDB):
         }
         self.insert(data)
 
-    def addGame(self, handicap: float, courseID: str, date: datetime.datetime | str, shots: list[int], pcc: float) -> str:
+    def addGame(self, handicap_dif: float, handicap_net: float, stableford: float, courseID: str, date: datetime.datetime | str, shots: list[int], pcc: float) -> str:
         """
         Adds a new game to tinyDB.
 
         Args:
-        handicap (float): handicap the game was played with
+        handicap_dif (float): handicap differential the game was has
+        handicap_net (float): handicap differential calculated using the net shots
+        stableford (float): handicap differential calculated using the stableford system
         courseID (str): e.g. the name of the course
         date (datetime.datetime | str): The date the game was played on, could als obe int he past; you can either pass the datetime object or the iso-string
         shots (list[int]): The shots that were needed for each whole. E.g. [2,3] 2 shots for for first hole, 3 shots for second hole
         
-        Returns:
-        str: the uuid in hex format
+        Returns: str: the uuid in hex format
         """
 
+        #TODO check course, pcc,
+        #TODO check max amount of shots (Net-Double-Bogey)
+
         id = uuid.uuid4()
-        game = {"game_id": id.hex,
-                "handicap": handicap, 
-                "courseID": courseID,
-                "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date , 
-                "shots": shots,
-                "pcc": pcc
+        game = {
+            "game_id": id.hex,
+            "handicap_dif": handicap_dif,
+            "handicap_net": handicap_net,
+            "stableford": stableford,
+            "courseID": courseID,
+            "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date , 
+            "shots": shots,
+            "pcc": pcc
         }
         self.insert(game)
 
