@@ -27,24 +27,23 @@ def handicap(games: list[dict]) -> float:
     differentials.sort()
     
     if numGames == 3:
-        value = differentials[0]
+        handicap = differentials[0]
     elif numGames == 4:
-        value = differentials[0] - 1
+        handicap = differentials[0] - 1
     elif numGames == 5:
-        value = differentials[0] - 2
+        handicap = differentials[0] - 2
     elif numGames == 6 or numGames == 7:
         average = (differentials[0] + differentials[1])/2
-        value = round(average - 1, 1)
+        handicap = round(average - 1, 1)
     elif numGames >= 8:
         bestGames = differentials[0:7] #slice the best 8 games
         average = sum(bestGames)/8
-        value = round(average, 1)
-    handicap[i] = value
+        handicap = round(average, 1)
     
     return handicap
 
 
-def handicapDifferential(game: dict, course: dict) -> float:
+def handicapDifferential(game: dict, course: dict) -> dict:
     """
     calculates the handicap differential for one game
 
@@ -53,13 +52,17 @@ def handicapDifferential(game: dict, course: dict) -> float:
     course (dict): The course corresponding to the game.
 
     Returns:
-    float: gross handicap differential
+    dict: the game with the new entry
     """
     shots = sum(game["shots"])
-    return ((shots - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
+    differential = ((shots - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
+    
+    game["handicap_dif"] = round(differential, 2)
+
+    return game
 
 
-def handicapDifferentialNet(handicap: float, game: dict, course: dict) -> float:
+def handicapDifferentialNet(handicap: float, game: dict, course: dict) -> dict:
     """
     calculates the handicap differential for one game using net shots.
     Often used for more casual games can not be used for the Handicap without conversion
@@ -70,34 +73,71 @@ def handicapDifferentialNet(handicap: float, game: dict, course: dict) -> float:
     course (dict): The course corresponding to the game.
 
     Returns:
-    float: net handicap differential
+    dict: the game with the new entry
     """
     net = sum(game["shots"]) - handicap
-    mockGame = {
-        "shots": [net],
-        "pcc": game["pcc"]
-    },
+    differential = ((net - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
+    
+    game["differential_net"] = round(differential, 2)
 
-    return handicapDifferential(mockGame, course)
+    return game
 
 
-def handicapDifferentialStableford(game: dict, course: dict) -> float:
+def handicapDifferentialStableford(game: dict, course: dict) -> dict:
     """
-    calculates the handicap differential for one game using the Stableford system
-    Often used for more casual games can not be used for the Handicap without conversion
+    calculates the handicap differential for one game using the Stableford system.
+    Often used for more casual games can not be used for the Handicap without conversion.
+    NOTE: Requires the net differential to be written before this function is called.
 
     Args:
     game (dict): The game the calculation is being done on.
     course (dict): The course corresponding to the game.
 
     Returns:
-    float: stableford points
+    dict: the game with the new entry
     """
-    print("a")
+    
+    handicapNet = game["handicap_net"]
+    strokesPerHole = distributeStrokes(handicapNet, len(course["par"]))
+
+    stablefordPoints = 0
+
+    for index, (par, shots) in enumerate(zip(course["par"], game["shots"])):
+        handicapStrokes = strokesPerHole[index]
+        netScore = shots - handicapStrokes
+
+        if netScore <= par - 2:
+            stablefordPoints = 4 + (par - netScore)
+        elif netScore == par - 1:
+            stablefordPoints = 3
+        elif netScore == par:
+            stablefordPoints = 2
+        elif netScore == par + 1:
+            stablefordPoints = 1
+        else:
+            stablefordPoints = 0
+    
+    game["stableford"]  = stablefordPoints
+
+    return game
 
 
-#highest priority at the top
-#TODO fill out the differential functions
-#TODO build packages
-#TODO create ui
-#TODO Soft- / Hardcap on handicap increase
+def distributeStrokes(handicapNet: float, holes: int) -> list[int]:
+    """
+    distributes the handicap on the number of holes
+
+    Args:
+    handicapNet (float): the players net handicap rounded to two decimals
+    holes (int): number of holes on the course
+
+    Returns:
+    list[int]: the number of strokes per hole
+    """
+    baseStrokes = handicapNet // holes
+    remainder = handicapNet % holes
+
+    strokes = [baseStrokes] * holes
+    for i in range(remainder):
+        strokes[i] += 1
+    
+    return strokes
