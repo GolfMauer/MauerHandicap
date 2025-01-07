@@ -127,6 +127,3 @@ class MauerDB(TinyDB):
 
         return result
 
-
-#TODO create handicap package
-#TODO call handicap and handover PCC value
