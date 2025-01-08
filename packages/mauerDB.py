@@ -49,9 +49,6 @@ class MauerDB(TinyDB):
         Adds a new game to tinyDB.
 
         Args:
-        handicap_dif (float): handicap differential the game was has
-        handicap_net (float): handicap differential calculated using the net shots
-        stableford (float): handicap differential calculated using the stableford system
         courseID (str): e.g. the name of the course
         date (datetime.datetime | str): The date the game was played on, could als obe int he past; you can either pass the datetime object or the iso-string
         shots (list[int]): The shots that were needed for each whole. E.g. [2,3] 2 shots for for first hole, 3 shots for second hole
