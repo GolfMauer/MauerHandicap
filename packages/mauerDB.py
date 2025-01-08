@@ -3,6 +3,7 @@ import json
 import datetime
 from os import listdir
 from os.path import isfile, join
+import handicap2021 as hc
 import uuid
 
 class MauerDB(TinyDB):
@@ -43,7 +44,7 @@ class MauerDB(TinyDB):
         }
         self.insert(data)
 
-    def addGame(self, handicap_dif: float, handicap_net: float, stableford: float, courseID: str, date: datetime.datetime | str, shots: list[int], pcc: float) -> str:
+    def addGame(self, courseID: str, date: datetime.datetime | str, shots: list[int], pcc: float) -> str:
         """
         Adds a new game to tinyDB.
 
@@ -61,17 +62,24 @@ class MauerDB(TinyDB):
         #TODO check course, pcc,
         #TODO check max amount of shots (Net-Double-Bogey)
 
+        course = self.getCourses([{"courseID": courseID}])
         id = uuid.uuid4()
-        game = {
-            "game_id": id.hex,
-            "handicap_dif": handicap_dif,
-            "handicap_net": handicap_net,
-            "stableford": stableford,
-            "courseID": courseID,
-            "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date , 
-            "shots": shots,
-            "pcc": pcc
-        }
+        game = { 
+                "id": id.hex, 
+                "courseID": courseID, 
+                "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date, 
+                "shots": shots, 
+                "pcc": pcc 
+            }
+        
+        game = hc.handicapDifferential(game, course)
+        
+        currentGames = self.getGames()
+        handicap = hc.handicap(currentGames)
+
+        game = hc.handicapDifferentialNet(handicap, game, course)
+        game = hc.handicapDifferentialStableford(game, course)
+        
         self.insert(game)
 
         return id.hex
