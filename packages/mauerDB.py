@@ -127,6 +127,7 @@ class MauerDB(TinyDB):
 
         result = []
         for course_id in unique_courses:
+            #TODO shouldnt this be self.search instead
             data = self.table.search(query.courseID == course_id)  # Assuming self.table is a TinyDB table
             result.extend(data)  # Extend the result list with the search results
 
