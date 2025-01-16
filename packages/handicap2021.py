@@ -107,15 +107,15 @@ def handicapDifferentialStableford(game: dict, course: dict) -> dict:
         netScore = shots - handicapStrokes
 
         if netScore <= par - 2:
-            stablefordPoints = 4 + (par - netScore)
+            stablefordPoints += 4 + (par - netScore)
         elif netScore == par - 1:
-            stablefordPoints = 3
+            stablefordPoints += 3
         elif netScore == par:
-            stablefordPoints = 2
+            stablefordPoints += 2
         elif netScore == par + 1:
-            stablefordPoints = 1
+            stablefordPoints += 1
         else:
-            stablefordPoints = 0
+            stablefordPoints += 0
     
     game["stableford"]  = stablefordPoints
 
