@@ -38,15 +38,15 @@ def handicap(games: list[dict]) -> float:
     elif numGames <= 8:
         handicap = (differentials[0] + differentials[1])/2
     elif numGames <= 11:
-        handicap = sum(differentials[0:2])/3
+        handicap = sum(differentials[0:3])/3
     elif numGames <= 14:
-        handicap = sum(differentials[0:3])/4
+        handicap = sum(differentials[0:4])/4
     elif numGames <= 16:
-        handicap = sum(differentials[0:4])/5
+        handicap = sum(differentials[0:5])/5
     elif numGames <= 18:
-        handicap = sum(differentials[0:5])/6
+        handicap = sum(differentials[0:6])/6
     elif numGames == 19:
-        handicap = sum(differentials[0:6])/7
+        handicap = sum(differentials[0:7])/7
     else:
         bestGames = differentials[0:7] #slice the best 8 games
         average = sum(bestGames)/8
