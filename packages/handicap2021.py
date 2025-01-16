@@ -27,15 +27,27 @@ def handicap(games: list[dict]) -> float:
     differentials.sort()
     
     if numGames == 3:
-        handicap = differentials[0]
+        handicap = differentials[0] - 2
     elif numGames == 4:
         handicap = differentials[0] - 1
     elif numGames == 5:
-        handicap = differentials[0] - 2
-    elif numGames == 6 or numGames == 7:
+        handicap = differentials[0]
+    elif numGames == 6:
         average = (differentials[0] + differentials[1])/2
         handicap = round(average - 1, 1)
-    elif numGames >= 8:
+    elif numGames <= 8:
+        handicap = (differentials[0] + differentials[1])/2
+    elif numGames <= 11:
+        handicap = sum(differentials[0:2])/3
+    elif numGames <= 14:
+        handicap = sum(differentials[0:3])/4
+    elif numGames <= 16:
+        handicap = sum(differentials[0:4])/5
+    elif numGames <= 18:
+        handicap = sum(differentials[0:5])/6
+    elif numGames == 19:
+        handicap = sum(differentials[0:6])/7
+    else:
         bestGames = differentials[0:7] #slice the best 8 games
         average = sum(bestGames)/8
         handicap = round(average, 1)
