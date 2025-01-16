@@ -60,9 +60,9 @@ class MauerDB(TinyDB):
         #TODO check max amount of shots (Net-Double-Bogey)
 
         course = self.getCourses([{"courseID": courseID}])
-        id = uuid.uuid4()
+        id = uuid.uuid4().hex
         game = { 
-                "id": id.hex, 
+                "id": id, 
                 "courseID": courseID, 
                 "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date, 
                 "shots": shots, 
@@ -79,7 +79,7 @@ class MauerDB(TinyDB):
         
         self.insert(game)
 
-        return id.hex
+        return id
 
 
     def getGames(self, n: int = 0, m: int = 19) -> list[dict]:
