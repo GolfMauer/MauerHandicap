@@ -55,6 +55,29 @@ def handicap(games: list[dict]) -> float:
     return handicap
 
 
+def calcDifferential(shots: list[int], courseRating: int, slopeRating: int, pcc: int) -> float:
+    """
+    simple helper to calculate the differential
+
+    Args:
+    shots (list[int]): list of the shots taken
+    courseRating (int): rating of the course
+    slopeRating (int): rating of the slope
+    pcc (int): adjustment for weather
+    """
+
+    total = sum(shots)
+    #TODO consider unfinished games
+    if len(shots) == 18:
+        differential =(total - courseRating + pcc )* (113 / slopeRating)
+    elif len(shots) == 9:
+        #TODO An 18 hole differential is created by combining the 9 hole with the expected score over 9 holes
+        #wouldn't that mean that we have to support both 9 hole handicap and 18 hole handicap
+        #requiring to handle them separately?
+        differential =(total - courseRating + 0.5*pcc )* (113 / slopeRating)
+
+    return round(differential, 1)
+
 def handicapDifferential(game: dict, course: dict) -> dict:
     """
     calculates the handicap differential for one game
@@ -66,10 +89,10 @@ def handicapDifferential(game: dict, course: dict) -> dict:
     Returns:
     dict: the game with the new entry
     """
-    shots = sum(game["shots"])
-    differential = ((shots - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
+    game["shots"]
+    differential = calcDifferential(game["shots"], course["course_rating"], course["slope_rating"], game["pcc"])
     
-    game["handicap_dif"] = round(differential, 2)
+    game["handicap_dif"] = differential
 
     return game
 
@@ -87,6 +110,7 @@ def handicapDifferentialNet(handicap: float, game: dict, course: dict) -> dict:
     Returns:
     dict: the game with the new entry
     """
+    #TODO dry code
     net = sum(game["shots"]) - handicap
     differential = ((net - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
     
