@@ -61,12 +61,12 @@ def calcDifferential(shots: list[int], courseRating: int, slopeRating: int, pcc:
     total = sum(shots)
     #TODO consider unfinished games
     if len(shots) == 18:
-        differential =(total - courseRating + pcc )* (113 / slopeRating)
+        differential =(total - courseRating + pcc ) * (113 / slopeRating)
     elif len(shots) == 9:
         #TODO An 18 hole differential is created by combining the 9 hole with the expected score over 9 holes
         #wouldn't that mean that we have to support both 9 hole handicap and 18 hole handicap
         #requiring to handle them separately?
-        differential =(total - courseRating + 0.5*pcc )* (113 / slopeRating)
+        differential =(total - courseRating + 0.5 * pcc ) * (113 / slopeRating)
 
     return round(differential, 1)
 
