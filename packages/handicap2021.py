@@ -103,7 +103,7 @@ def handicapDifferentialNet(handicap: float, game: dict, course: dict) -> dict:
     """
     #TODO dry code
     net = sum(game["shots"]) - handicap
-    differential = ((net - course["course_rating"]) * 113 / course["slope_rating"]) + game["pcc"]
+    differential = ((net - course["course_rating"]) + game["pcc"] * 113 / course["slope_rating"])
     
     game["differential_net"] = round(differential, 2)
 
