@@ -1,5 +1,6 @@
 def handicap(games: list[dict]) -> float:
-    """calculates the handicap given 0 to 20 games. 
+    """
+    calculates the handicap given 0 to 20 games and returns the handicap unrounded. 
     
     Args:
     games (list[dict]): up to the last 20 games
@@ -26,7 +27,7 @@ def handicap(games: list[dict]) -> float:
         differentials.append(game["handicap_dif"])
     differentials.sort()
     
-    if numGames == 3:
+    if numGames <= 3:
         handicap = differentials[0] - 2
     elif numGames == 4:
         handicap = differentials[0] - 1
@@ -48,9 +49,8 @@ def handicap(games: list[dict]) -> float:
     elif numGames == 19:
         handicap = sum(differentials[0:7])/7
     else:
-        bestGames = differentials[0:7] #slice the best 8 games
-        average = sum(bestGames)/8
-        handicap = round(average, 1)
+        bestGames = differentials[0:8] #slice the best 8 games
+        handicap = sum(bestGames)/8
     
     return handicap
 
@@ -89,7 +89,6 @@ def handicapDifferential(game: dict, course: dict) -> dict:
     Returns:
     dict: the game with the new entry
     """
-    game["shots"]
     differential = calcDifferential(game["shots"], course["course_rating"], course["slope_rating"], game["pcc"])
     
     game["handicap_dif"] = differential
