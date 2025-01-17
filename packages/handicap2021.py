@@ -12,15 +12,7 @@ def handicap(games: list[dict]) -> float:
     if not (len(games) <= 20):
         raise ValueError(f"Invalid parameter: len(games) = {len(games)}. You can only add a max of 20 games.")
 
-    handicap = 54 
-    numHoles = 0
-    for game in games:
-        numHoles += len[game["shots"]] #shots is the array that tracks the amount of shots per hole
     numGames = len(games)
-
-    if numHoles < 54:
-        return handicap
-
     
     differentials = []
     for game in games:
