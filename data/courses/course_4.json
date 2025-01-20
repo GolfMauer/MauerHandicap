@@ -1,0 +1,6 @@
+{
+    "courseID" : "Pine Valley",
+    "course_rating": 73,
+    "slope_rating": 125,
+    "par": [3, 4, 3, 3, 4, 3, 3, 4, 5, 3, 5, 5, 4, 3, 3, 5, 3, 4, 5]
+}

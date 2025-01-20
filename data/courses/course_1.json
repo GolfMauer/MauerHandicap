@@ -1,0 +1,6 @@
+{
+    "courseID" : "Womp Womp",
+    "course_rating": 67,
+    "slope_rating": 55,
+    "par": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5]
+}
