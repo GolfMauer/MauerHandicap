@@ -1,13 +1,13 @@
-# sauce https://www.ega-golf.ch/sites/default/files/hcp_booklet_2019_final_0.pdf
 import math
+import mauerDB
 
 BUFFER_UPPER_LIMIT = 36
 BELOW_BUFFER_ADD = 0.1
 BUFFER_LOWER_LIMIT_9HOLE = [None, 35, 35, 34, 33, None]
+#TODO add return values
 
 
-# implements p.25 3.11.5
-def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
+def initialHandicap(sblfd_score: int, nineHole: bool) -> float:
     """
     Calculates handicap for a player based on their score and whether they played a nine-hole game.
 
@@ -19,74 +19,50 @@ def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
         float: The handicap after the first game played.
     """
     if nineHole:
-        stablefordScore += 18
-    return min(54 - (stablefordScore - 36), 54)
+        sblfd_score += 18
+    return 54 - (sblfd_score - 36)
 
-def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: dict) -> float:
+def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: mauerDB.MauerDB) -> float:
     """
     Calculate the new handicap based on the game results, course conditions, and previous handicap.
     
     Args:
         game (dict): A dictionary containing game details, including shots taken.
-        cba (int): The Computed Buffer Adjustment (CBA) value.
+        cba (int): The Competition Buffer Adjustment (CBA) value.
         previousHandicap (float): The player's previous handicap.
     Returns:
         float: The new calculated handicap.
     """
-    # TODO: error for 9 hole with cat 1? -> no buffer zone given
-    if previousHandicap is None:
-        stableford = convertToStableford(game["shots"], course["par"])
-        return initialHandicap(stableford, game["is9Hole"])
     
-    handicapStrokes = playingHandicap(game["is9Hole"], previousHandicap, course["course_rating"], course["slope_rating"], sum(course["par"]))
-
-    # implements p.24 3.9.7
-    # assigning handicap strokes
-    par = spreadPlayingHC(course, handicapStrokes, game["is9Hole"])
+    # 100% handicap allowance = playing handicap
+    # applied in specific order! NEED HANDICAP STROKE INDEX
+    # error for 9 hole with cat 1?
     
-    stableford = convertToStableford(game["shots"], par)
+    course = mauer.getCourses([game])[0]
+    stableford = 0
+    nineHole = len(game.shots) is 9
+    handicapStrokes = playingHandicap(nineHole, previousHandicap, course.course_rating, course.slope_rating, sum(course.par))
+    
+    for i in range(course.strokeIndex): #TODO: course entry needs stroke index
+        if i+1 < handicapStrokes:
+            pass
+        course.par[course.strokeIndex[i]] += 1 + handicapStrokes // (9*(nineHole+1) + i+1) # absolutely bonkers math going on here
+    
+    # convert to stableford
+    for i in range(game.shots):
+        stableford += max(0, 2 - (game.shots[i] - course.par[i]))
     
     # if 9-hole, add 18 points, to be RECORDED
-    if game["is9Hole"]:
+    if nineHole:
         stableford += 18
 
     adjustment = calculateAdjustment(stableford, previousHandicap, cba)
 
     return previousHandicap + adjustment
 
-def spreadPlayingHC(course: dict, strokes: int, nineHole: bool) -> list[int]:
+def round_half_up(n, decimals=0) -> float:
     """
-    
-    """
-    par = course["par"]
-    strokeIndex = course["strokeIndex"]
-    
-    for i in range(len(strokeIndex)):
-        if i+1 < strokes:
-            pass
-        par[strokeIndex[i]-1] += 1 + (strokes-1) // 9*((not nineHole)+1) # absolutely bonkers math going on here
-
-# implements 3.10
-def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
-    """
-    Converts golf scores to Stableford points.
-    
-    Args:
-        shots (list[int]): A list of the number of shots taken on each hole.
-        adjustedPar (list[int]): A list of the adjusted par for each hole.
-
-    Returns:
-        int: The total Stableford score for the round.
-    """
-    score = 0
-    for i in range(len(shots)):  # Corrected range to len(shots)
-        score += max(0, 2 - (shots[i] - adjustedPar[i]))
-    return score
-
-# implements p24 3.9.3
-def roundHalfUp(n, decimals=0) -> float:
-    """
-    Rounds a number to a specified number of decimal places using the "round half up" strategy. (Always round up on 0.5)
+    Rounds a number to a specified number of decimal places using the "round half up" strategy.
     
     Args:
         n (float): The number to be rounded.
@@ -111,17 +87,15 @@ def playingHandicap18(handicap: float, courseRating: float, slopeRating: float, 
     Returns:
         int: The calculated playing handicap, rounded to the nearest integer.
     """
-
-    # implements p24 3.9.3
+    
     # category 1-5
-    if handicapToCategory(handicap) < 6:
+    if hciToCategory(handicap) < 6:
         raw = handicap * (slopeRating / 113) + (courseRating - par)
     # category 6
     else:
-        raw = handicap + playingHandicapDifferential(False, courseRating, slopeRating, par)
-
-    # implements p24 3.9.3
-    return int(roundHalfUp(raw))
+        raw = handicap + playingHandicapDifferential() #TODO
+    
+    return int(round_half_up(raw))
 
 def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
     """
@@ -129,21 +103,20 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     
     Args:
         handicap (float): The player's handicap index.
-        courseRating (float): The 9 hole course rating, which represents the difficulty of a course for a scratch golfer.
-        slopeRating (float): The 9 hole slope rating, which represents the relative difficulty of a course for a bogey golfer compared to a scratch golfer.
-        par (int): The 9 hole par for the course.
+        courseRating (float): The course rating, which represents the difficulty of a course for a scratch golfer.
+        slopeRating (float): The slope rating, which represents the relative difficulty of a course for a bogey golfer compared to a scratch golfer.
+        par (int): The par for the course.
         
     Returns:
         int: The calculated playing handicap, rounded to the nearest integer.
     """
-    category = handicapToCategory(handicap)
-    # implements p22 3.9.4a
-    if category > 1 and category < 6:
+    cat = hciToCategory(handicap)
+    if cat > 1 and cat < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
-    if category is 6:
-        raw = handicap / 2 + playingHandicapDifferential(True, courseRating, slopeRating, par)
+    if cat is 6:
+        raw = handicap / 2 + playingHandicapDifferential(true) #TODO
     
-    return int(roundHalfUp(raw))
+    return int(round_half_up(raw))
 
 def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
     """
@@ -164,8 +137,7 @@ def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRa
         return playingHandicap9(handicap, courseRating, slopeRating, par)
     return playingHandicap18(handicap, courseRating, slopeRating, par)
 
-# implements p.13 handicap category
-def handicapToCategory(handicap: float) -> int:
+def hciToCategory(handicap: float) -> int:
     """
     Converts handicap index to handicap category
 
@@ -175,7 +147,7 @@ def handicapToCategory(handicap: float) -> int:
     Returns:
         int: The player's handicap category corresponding to their handicap index.
     """
-    if handicap < 4.5:
+    if handicap < 4.4:
         return 1
     elif handicap < 11.5:
         return 2
@@ -187,7 +159,6 @@ def handicapToCategory(handicap: float) -> int:
         return 5
     return 6
 
-# implements p.12 buffer zone
 def catToLowerBuffer(is9Hole: bool, category: int) -> int:
     """
     Caculates the lower buffer zone limit for a category.
@@ -200,10 +171,9 @@ def catToLowerBuffer(is9Hole: bool, category: int) -> int:
         int: Lower buffer zone limit for given category.
     """
     if is9Hole:
-        return BUFFER_LOWER_LIMIT_9HOLE[category-1]
+        return BUFFER_LOWER_LIMIT_9HOLE[category] # is there a better solution?
     return BUFFER_UPPER_LIMIT - category
 
-# implements p22 3.9.4
 def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating: float, par: int) -> float:
     """
     Calculate the playing handicap differential for a golf course.
@@ -217,14 +187,16 @@ def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating
     Returns:
         float: The playing handicap differential.
     """
+    
+    #TODO: pls check for correctness (part 1 definitions)
     if nineHole:
-        return playingHandicap9(36.0, courseRating, slopeRating, par) - 18.0
+        base = playingHandicap9(36.0, courseRating, slopeRating, par)
     else:
-        return playingHandicap18(36.0, courseRating, slopeRating, par) - 36.0
+        base = playingHandicap18(36.0, courseRating, slopeRating, par)
+    
+    return base - 36.0
 
-
-# implements p.25 3.12.5 & 3.12.6
-def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole: bool) -> float:
+def calculateAdjustment(stablefordScore: int, handicap: float, cba: int) -> float:
     """
     Calculates adjustment to handicap index.
 
@@ -237,27 +209,22 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
         float: Amount to adjust handicap by.
     """
     adjustment = 0
-    category = handicapToCategory(handicap)
-    if category is 6:
+    if hciToCategory(handicap) is 6:
         cba = 0 # cba does not apply to cat 6
-
+        
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
         for _ in range(stablefordScore - (BUFFER_UPPER_LIMIT + cba)):
-            category = handicapToCategory(handicap + adjustment)
-            single = category / 10
-            if category is 6:
+            cat = hciToCategory(handicap + adjustment)
+            single = cat / 10
+            if cat is 6:
                 single = 1
             adjustment -= single
-        return adjustment
-
-    lower = catToLowerBuffer(is9Hole, category)
-    if stablefordScore < lower + cba:
-        # cannot go back to cat 6
-        for _ in range(lower - stablefordScore):
-            if handicapToCategory(handicap + adjustment) is 6:
-                if adjustment > 0 :
-                    return adjustment - BELOW_BUFFER_ADD
-                return adjustment
+            
+    if stablefordScore < catToLowerBuffer(cat) + cba:
+        # only until cat 6, but not as granular as above
+        if hciToCategory(handicap) is 6:
+            return 0
+        for _ in range(stablefordScore):
             adjustment += BELOW_BUFFER_ADD    
 
     return adjustment
