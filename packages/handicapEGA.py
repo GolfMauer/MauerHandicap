@@ -4,7 +4,6 @@ import mauerDB
 BUFFER_UPPER_LIMIT = 36
 BELOW_BUFFER_ADD = 0.1
 BUFFER_LOWER_LIMIT_9HOLE = [None, 35, 35, 34, 33, None]
-#TODO add return values
 
 
 def initialHandicap(sblfd_score: int, nineHole: bool) -> float:
@@ -33,8 +32,6 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: m
     Returns:
         float: The new calculated handicap.
     """
-    
-    # 100% handicap allowance = playing handicap
     # applied in specific order! NEED HANDICAP STROKE INDEX
     # error for 9 hole with cat 1?
     
@@ -187,8 +184,6 @@ def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating
     Returns:
         float: The playing handicap differential.
     """
-    
-    #TODO: pls check for correctness (part 1 definitions)
     if nineHole:
         base = playingHandicap9(36.0, courseRating, slopeRating, par)
     else:
