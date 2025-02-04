@@ -168,7 +168,7 @@ def catToLowerBuffer(is9Hole: bool, category: int) -> int:
         int: Lower buffer zone limit for given category.
     """
     if is9Hole:
-        return BUFFER_LOWER_LIMIT_9HOLE[category] # is there a better solution?
+        return BUFFER_LOWER_LIMIT_9HOLE[category-1] # is there a better solution?
     return BUFFER_UPPER_LIMIT - category
 
 def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating: float, par: int) -> float:
