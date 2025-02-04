@@ -206,7 +206,7 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int) -> floa
     adjustment = 0
     if hciToCategory(handicap) is 6:
         cba = 0 # cba does not apply to cat 6
-        
+
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
         for _ in range(stablefordScore - (BUFFER_UPPER_LIMIT + cba)):
             cat = hciToCategory(handicap + adjustment)
@@ -214,12 +214,16 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int) -> floa
             if cat is 6:
                 single = 1
             adjustment -= single
-            
-    if stablefordScore < catToLowerBuffer(cat) + cba:
+        return adjustment
+
+    lower = catToLowerBuffer(cat)
+    if stablefordScore < lower + cba:
         # only until cat 6, but not as granular as above
-        if hciToCategory(handicap) is 6:
-            return 0
-        for _ in range(stablefordScore):
+        if hciToCategory(handicap + adjustment) is 6:
+            if adjustment > 0 :
+                return adjustment - BELOW_BUFFER_ADD
+            return 0.0
+        for _ in range(stablefordScore - lower):
             adjustment += BELOW_BUFFER_ADD    
 
     return adjustment
