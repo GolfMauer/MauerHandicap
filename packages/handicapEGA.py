@@ -191,7 +191,7 @@ def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating
     
     return base - 36.0
 
-def calculateAdjustment(stablefordScore: int, handicap: float, cba: int) -> float:
+def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole: bool) -> float:
     """
     Calculates adjustment to handicap index.
 
@@ -204,7 +204,8 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int) -> floa
         float: Amount to adjust handicap by.
     """
     adjustment = 0
-    if hciToCategory(handicap) is 6:
+    cat = hciToCategory(handicap)
+    if cat is 6:
         cba = 0 # cba does not apply to cat 6
 
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
@@ -216,7 +217,7 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int) -> floa
             adjustment -= single
         return adjustment
 
-    lower = catToLowerBuffer(cat)
+    lower = catToLowerBuffer(is9Hole, cat)
     if stablefordScore < lower + cba:
         # only until cat 6, but not as granular as above
         if hciToCategory(handicap + adjustment) is 6:
