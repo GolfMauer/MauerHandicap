@@ -144,7 +144,7 @@ def hciToCategory(handicap: float) -> int:
     Returns:
         int: The player's handicap category corresponding to their handicap index.
     """
-    if handicap < 4.4:
+    if handicap < 4.5:
         return 1
     elif handicap < 11.5:
         return 2
