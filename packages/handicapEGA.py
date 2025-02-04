@@ -57,7 +57,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: m
 
     return previousHandicap + adjustment
 
-def round_half_up(n, decimals=0) -> float:
+def roundHalfUp(n, decimals=0) -> float:
     """
     Rounds a number to a specified number of decimal places using the "round half up" strategy.
     
@@ -92,7 +92,7 @@ def playingHandicap18(handicap: float, courseRating: float, slopeRating: float, 
     else:
         raw = handicap + playingHandicapDifferential() #TODO
     
-    return int(round_half_up(raw))
+    return int(roundHalfUp(raw))
 
 def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
     """
@@ -113,7 +113,7 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     if cat is 6:
         raw = handicap / 2 + playingHandicapDifferential(true) #TODO
     
-    return int(round_half_up(raw))
+    return int(roundHalfUp(raw))
 
 def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
     """
