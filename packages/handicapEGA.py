@@ -224,7 +224,7 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
             if adjustment > 0 :
                 return adjustment - BELOW_BUFFER_ADD
             return 0.0
-        for _ in range(stablefordScore - lower):
+        for _ in range(lower - stablefordScore):
             adjustment += BELOW_BUFFER_ADD    
 
     return adjustment
