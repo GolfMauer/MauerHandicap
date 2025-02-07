@@ -6,7 +6,7 @@ BELOW_BUFFER_ADD = 0.1
 BUFFER_LOWER_LIMIT_9HOLE = [None, 35, 35, 34, 33, None]
 
 
-def initialHandicap(sblfd_score: int, nineHole: bool) -> float:
+def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
     """
     Calculates handicap for a player based on their score and whether they played a nine-hole game.
 
@@ -18,8 +18,8 @@ def initialHandicap(sblfd_score: int, nineHole: bool) -> float:
         float: The handicap after the first game played.
     """
     if nineHole:
-        sblfd_score += 18
-    return 54 - (sblfd_score - 36)
+        stablefordScore += 18
+    return 54 - (stablefordScore - 36)
 
 def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: mauerDB.MauerDB) -> float:
     """
@@ -32,15 +32,16 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: m
     Returns:
         float: The new calculated handicap.
     """
-    # applied in specific order! NEED HANDICAP STROKE INDEX
-    # error for 9 hole with cat 1?
+    # TODO: applied in specific order! NEED HANDICAP STROKE INDEX
+    # -> indicates which order of holes strokes are added to
+    # TODO: error for 9 hole with cat 1? -> no buffer zone given
     
     course = mauer.getCourses([game])[0]
     stableford = 0
     nineHole = len(game.shots) is 9
-    handicapStrokes = playingHandicap(nineHole, previousHandicap, course.course_rating, course.slope_rating, sum(course.par))
+    handicapStrokes = playingHandicap(nineHole, previousHandicap, course["course_rating"], course["slope_rating"], sum(course["par"]))
     
-    for i in range(course.strokeIndex): #TODO: course entry needs stroke index
+    for i in range(course["strokeIndex"]): #TODO: course entry needs stroke index
         if i+1 < handicapStrokes:
             pass
         course.par[course.strokeIndex[i]] += 1 + handicapStrokes // (9*(nineHole+1) + i+1) # absolutely bonkers math going on here
@@ -59,7 +60,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: m
 
 def roundHalfUp(n, decimals=0) -> float:
     """
-    Rounds a number to a specified number of decimal places using the "round half up" strategy.
+    Rounds a number to a specified number of decimal places using the "round half up" strategy. (Always round up on 0.5)
     
     Args:
         n (float): The number to be rounded.
@@ -90,7 +91,7 @@ def playingHandicap18(handicap: float, courseRating: float, slopeRating: float, 
         raw = handicap * (slopeRating / 113) + (courseRating - par)
     # category 6
     else:
-        raw = handicap + playingHandicapDifferential() #TODO
+        raw = handicap + playingHandicapDifferential(False, courseRating, slopeRating, par)
     
     return int(roundHalfUp(raw))
 
@@ -111,7 +112,7 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     if cat > 1 and cat < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
     if cat is 6:
-        raw = handicap / 2 + playingHandicapDifferential(true) #TODO
+        raw = handicap / 2 + playingHandicapDifferential(True, courseRating, slopeRating, par)
     
     return int(roundHalfUp(raw))
 
@@ -219,12 +220,12 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
 
     lower = catToLowerBuffer(is9Hole, cat)
     if stablefordScore < lower + cba:
-        # only until cat 6, but not as granular as above
-        if hciToCategory(handicap + adjustment) is 6:
-            if adjustment > 0 :
-                return adjustment - BELOW_BUFFER_ADD
-            return 0.0
+        # cannot go back to cat 6
         for _ in range(lower - stablefordScore):
+            if hciToCategory(handicap + adjustment) is 6:
+                if adjustment > 0 :
+                    return adjustment - BELOW_BUFFER_ADD
+                return adjustment
             adjustment += BELOW_BUFFER_ADD    
 
     return adjustment
