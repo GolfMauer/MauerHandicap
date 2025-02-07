@@ -19,7 +19,7 @@ def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
     """
     if nineHole:
         stablefordScore += 18
-    return 54 - (stablefordScore - 36)
+    return min(54 - (stablefordScore - 36), 54)
 
 def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: mauerDB.MauerDB) -> float:
     """
