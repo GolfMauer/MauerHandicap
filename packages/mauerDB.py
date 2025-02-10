@@ -3,7 +3,7 @@ import json
 import datetime
 from os import listdir
 from os.path import isfile, join
-import handicap2021 as hc
+import packages.handicapWHS as hc
 import uuid
 
 class MauerDB(TinyDB):

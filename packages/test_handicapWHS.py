@@ -1,5 +1,5 @@
 import pytest
-import handicap2021
+import packages.handicapWHS as handicapWHS
 
 from mauerDB import MauerDB
 from datetime import datetime, timedelta
@@ -155,50 +155,50 @@ def multiple_games(temp_db):
 
 
 def test_handicap_smaller54holes(one_game):
-    result = handicap2021.handicap()
+    result = handicapWHS.handicap()
     # Add appropriate assertions based on the expected result
     assert result is not None  # Replace with actual assertion logic
 
 
 def test_handicap_3_games(three_games):
-    result = handicap2021.handicap()
+    result = handicapWHS.handicap()
     # Add appropriate assertions based on the expected result
     assert result is not None  # Replace with actual assertion logic
 
 
 def test_handicap_4_games(four_games):
-    result = handicap2021.handicap()
+    result = handicapWHS.handicap()
     # Add appropriate assertions based on the expected result
     assert result is not None  # Replace with actual assertion logic
 
 def test_handicap_5_games(five_games):
-    result = handicap2021.handicap()
+    result = handicapWHS.handicap()
     # Add appropriate assertions based on the expected result
     assert result is not None  # Replace with actual assertion logic
 
 
 def test_handicap_6_games(six_games):
-    result = handicap2021.handicap()
+    result = handicapWHS.handicap()
     # Add appropriate assertions based on the expected result
     assert result is not None  # Replace with actual assertion logic
 
 def test_handicap_21_games(multiple_games):
-    result = handicap2021.handicap()
+    result = handicapWHS.handicap()
     # Add appropriate assertions based on the expected result
     assert result is not None  # Replace with actual assertion logic
 
 
 def test_handicap_differential():
-    result = handicap2021.handicapDifferential()
+    result = handicapWHS.handicapDifferential()
     # Add appropriate assertions
     assert 1 == 1  # Replace with actual assertion logic
 
 def test_handicap_differential_net():
-    result = handicap2021.handicapDifferentialNet()
+    result = handicapWHS.handicapDifferentialNet()
     # Add appropriate assertions
     assert 1 == 1  # Replace with actual assertion logic
 
 def test_handicap_differential_stableford():
-    result = handicap2021.handicapDifferentialStableford()
+    result = handicapWHS.handicapDifferentialStableford()
     # Add appropriate assertions
     assert 1 == 1  # Replace with actual assertion logic
