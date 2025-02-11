@@ -57,7 +57,7 @@ def multiple_games(temp_db):
 
 
 def test_insert_from_dir(temp_db):
-    path = "data/courses/"
+    path = "test/courses/"
     temp_db.insertFromDir(path)
     db_data = temp_db.all()
     arr = []

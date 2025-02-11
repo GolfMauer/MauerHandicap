@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 import random
 
+coursePath = "./test/courses"
+gamesPath = "./test/games"
 
 # Fixture to set up and tear down the temporary database
 @pytest.fixture
@@ -30,7 +32,7 @@ def one_game(temp_db):
     ]
     games = temp_db.table('games')
     courses = temp_db.table('courses')
-    courses.insert_from_dir("data/courses")
+    courses.insert_from_dir(coursePath)
     games.insert_multiple(mock_data)
     return temp_db
 
@@ -53,7 +55,7 @@ def three_games(temp_db):
 
     games = temp_db.table('games')
     courses = temp_db.table('courses')
-    courses.insert_from_dir("data/courses")
+    courses.insert_from_dir(coursePath)
     games.insert_multiple(mock_data)
     return temp_db
 
@@ -77,7 +79,7 @@ def four_games(temp_db):
 
     games = temp_db.table('games')
     courses = temp_db.table('courses')
-    courses.insert_from_dir("data/courses")
+    courses.insert_from_dir(coursePath)
     games.insert_multiple(mock_data)
     return temp_db
 
@@ -101,7 +103,7 @@ def five_games(temp_db):
 
     games = temp_db.table('games')
     courses = temp_db.table('courses')
-    courses.insert_from_dir("data/courses")
+    courses.insert_from_dir(coursePath)
     games.insert_multiple(mock_data)
     return temp_db
 
@@ -125,7 +127,7 @@ def six_games(temp_db):
 
     games = temp_db.table('games')
     courses = temp_db.table('courses')
-    courses.insert_from_dir("data/courses")
+    courses.insert_from_dir(coursePath)
     games.insert_multiple(mock_data)
     return temp_db
 
@@ -148,7 +150,7 @@ def multiple_games(temp_db):
 
     games = temp_db.table('games')
     courses = temp_db.table('courses')
-    courses.insert_from_dir("data/courses")
+    courses.insert_from_dir(coursePath)
     games.insert_multiple(mock_data)
     return temp_db
 
