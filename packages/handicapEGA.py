@@ -27,7 +27,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: m
     
     Args:
         game (dict): A dictionary containing game details, including shots taken.
-        cba (int): The Competition Buffer Adjustment (CBA) value.
+        cba (int): The Computed Buffer Adjustment (CBA) value.
         previousHandicap (float): The player's previous handicap.
     Returns:
         float: The new calculated handicap.
@@ -87,7 +87,7 @@ def playingHandicap18(handicap: float, courseRating: float, slopeRating: float, 
     """
     
     # category 1-5
-    if hciToCategory(handicap) < 6:
+    if handicapToCategory(handicap) < 6:
         raw = handicap * (slopeRating / 113) + (courseRating - par)
     # category 6
     else:
@@ -108,10 +108,10 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     Returns:
         int: The calculated playing handicap, rounded to the nearest integer.
     """
-    cat = hciToCategory(handicap)
-    if cat > 1 and cat < 6:
+    category = handicapToCategory(handicap)
+    if category > 1 and category < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
-    if cat is 6:
+    if category is 6:
         raw = handicap / 2 + playingHandicapDifferential(True, courseRating, slopeRating, par)
     
     return int(roundHalfUp(raw))
@@ -135,7 +135,7 @@ def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRa
         return playingHandicap9(handicap, courseRating, slopeRating, par)
     return playingHandicap18(handicap, courseRating, slopeRating, par)
 
-def hciToCategory(handicap: float) -> int:
+def handicapToCategory(handicap: float) -> int:
     """
     Converts handicap index to handicap category
 
@@ -169,7 +169,7 @@ def catToLowerBuffer(is9Hole: bool, category: int) -> int:
         int: Lower buffer zone limit for given category.
     """
     if is9Hole:
-        return BUFFER_LOWER_LIMIT_9HOLE[category-1] # is there a better solution?
+        return BUFFER_LOWER_LIMIT_9HOLE[category-1]
     return BUFFER_UPPER_LIMIT - category
 
 def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating: float, par: int) -> float:
@@ -205,24 +205,24 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
         float: Amount to adjust handicap by.
     """
     adjustment = 0
-    cat = hciToCategory(handicap)
-    if cat is 6:
+    category = handicapToCategory(handicap)
+    if category is 6:
         cba = 0 # cba does not apply to cat 6
 
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
         for _ in range(stablefordScore - (BUFFER_UPPER_LIMIT + cba)):
-            cat = hciToCategory(handicap + adjustment)
-            single = cat / 10
-            if cat is 6:
+            category = handicapToCategory(handicap + adjustment)
+            single = category / 10
+            if category is 6:
                 single = 1
             adjustment -= single
         return adjustment
 
-    lower = catToLowerBuffer(is9Hole, cat)
+    lower = catToLowerBuffer(is9Hole, category)
     if stablefordScore < lower + cba:
         # cannot go back to cat 6
         for _ in range(lower - stablefordScore):
-            if hciToCategory(handicap + adjustment) is 6:
+            if handicapToCategory(handicap + adjustment) is 6:
                 if adjustment > 0 :
                     return adjustment - BELOW_BUFFER_ADD
                 return adjustment
