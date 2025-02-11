@@ -1,5 +1,4 @@
 import math
-import mauerDB
 
 BUFFER_UPPER_LIMIT = 36
 BELOW_BUFFER_ADD = 0.1
@@ -21,7 +20,7 @@ def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
         stablefordScore += 18
     return min(54 - (stablefordScore - 36), 54)
 
-def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: mauerDB.MauerDB) -> float:
+def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: dict) -> float:
     """
     Calculate the new handicap based on the game results, course conditions, and previous handicap.
     
@@ -32,31 +31,45 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, mauer: m
     Returns:
         float: The new calculated handicap.
     """
-    # TODO: applied in specific order! NEED HANDICAP STROKE INDEX
-    # -> indicates which order of holes strokes are added to
     # TODO: error for 9 hole with cat 1? -> no buffer zone given
+    if previousHandicap is None:
+        stableford = convertToStableford()
+        return initialHandicap(stableford, game["is9Hole"])
     
-    course = mauer.getCourses([game])[0]
     stableford = 0
-    nineHole = len(game.shots) is 9
-    handicapStrokes = playingHandicap(nineHole, previousHandicap, course["course_rating"], course["slope_rating"], sum(course["par"]))
+    handicapStrokes = playingHandicap(game["is9Hole"], previousHandicap, course["course_rating"], course["slope_rating"], sum(course["par"]))
     
-    for i in range(course["strokeIndex"]): #TODO: course entry needs stroke index
+    # assigning handicap strokes
+    for i in range(len(course["strokeIndex"])):
         if i+1 < handicapStrokes:
             pass
-        course.par[course.strokeIndex[i]] += 1 + handicapStrokes // (9*(nineHole+1) + i+1) # absolutely bonkers math going on here
+        course["par"][course["strokeIndex"][i]] += 1 + handicapStrokes // (9*(game["is9Hole"]+1) + i+1) # absolutely bonkers math going on here
     
-    # convert to stableford
-    for i in range(game.shots):
-        stableford += max(0, 2 - (game.shots[i] - course.par[i]))
+    stableford = convertToStableford(game["shots"], course["pa"])
     
     # if 9-hole, add 18 points, to be RECORDED
-    if nineHole:
+    if game["is9Hole"]:
         stableford += 18
 
     adjustment = calculateAdjustment(stableford, previousHandicap, cba)
 
     return previousHandicap + adjustment
+
+def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
+    """
+    Converts golf scores to Stableford points.
+    
+    Args:
+        shots (list[int]): A list of the number of shots taken on each hole.
+        adjustedPar (list[int]): A list of the adjusted par for each hole.
+
+    Returns:
+        int: The total Stableford score for the round.
+    """
+    score = 0
+    for i in range(len(shots)):  # Corrected range to len(shots)
+        score += max(0, 2 - (shots[i] - adjustedPar[i]))
+    return score
 
 def roundHalfUp(n, decimals=0) -> float:
     """
