@@ -1,6 +1,7 @@
 # Project MAUER
 Firstly it is important to establish that no one has the intent of building a wall.
-But for the security of our grades a great great wall has to be build.
+But everything changed when the Fire Nation attacked.
+For the security of our grades a great great wall has to be build.
 
 ## Structure
 To ensure efficient progress on our MAUER the folders are structured as follows: <br>
