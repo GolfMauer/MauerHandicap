@@ -31,8 +31,8 @@ To create a good user experience of the MAUER PyQt is used to design the UI (#TO
 The application will be tied together by the handicap packages (potential merge through MauerDB as it often makes sense to calculate both when reading/writing data) and the MauerDB package, which allows the frontend to store data which will then be calculated stored (on the next day for WHS). The main.py will be called on each start and will do the initial setup of the db and trigger the corn job for WHS
 
 > **Note**: The handicap packages should be merged so that the frontend only interacts with the db and the db only with the packages (Model-View-Controller I think)
-!!! note : It may be useful to create a init.py for installation of the Mauer as application that is recognized by windows
-::: note
+
+> **Note**: It may be useful to create a init.py for installation of the Mauer as application that is recognized by windows
 
 # TODO
 - add tests
