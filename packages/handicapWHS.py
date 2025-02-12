@@ -1,6 +1,5 @@
 import statistics as stats
 
-
 def handicap(games: list[dict]) -> float:
     """
     calculates the handicap given 0 to 20 games and returns the handicap unrounded. 
@@ -33,18 +32,17 @@ def handicap(games: list[dict]) -> float:
     elif numGames <= 8:
         handicap = stats.mean(differentials[:2])
     elif numGames <= 11:
-        handicap = sum(differentials[:3])/3
+        handicap = stats.mean(differentials[:3])
     elif numGames <= 14:
-        handicap = sum(differentials[:4])/4
+        handicap = stats.mean(differentials[:4])
     elif numGames <= 16:
-        handicap = sum(differentials[:5])/5
+        handicap = stats.mean(differentials[:5])
     elif numGames <= 18:
-        handicap = sum(differentials[:6])/6
+        handicap = stats.mean(differentials[:6])
     elif numGames == 19:
-        handicap = sum(differentials[:7])/7
+        handicap = stats.mean(differentials[:7])
     else:
-        bestGames = differentials[:8] #slice the best 8 games
-        handicap = sum(bestGames)/8
+        handicap = stats.mean(differentials[:8])
     
     return handicap
 
