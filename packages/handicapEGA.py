@@ -35,10 +35,9 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     """
     # TODO: error for 9 hole with cat 1? -> no buffer zone given
     if previousHandicap is None:
-        stableford = convertToStableford()
+        stableford = convertToStableford(game["shots"], course["par"])
         return initialHandicap(stableford, game["is9Hole"])
     
-    stableford = 0
     handicapStrokes = playingHandicap(game["is9Hole"], previousHandicap, course["course_rating"], course["slope_rating"], sum(course["par"]))
 
     # implements p.24 3.9.7
