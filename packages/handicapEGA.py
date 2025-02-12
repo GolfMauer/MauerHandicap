@@ -216,6 +216,8 @@ def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating
     else:
         return playingHandicap18(36.0, courseRating, slopeRating, par) - 36.0
 
+
+# implements p.25 3.12.5 & 3.12.6
 def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole: bool) -> float:
     """
     Calculates adjustment to handicap index.
