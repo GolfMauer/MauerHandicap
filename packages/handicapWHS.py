@@ -1,3 +1,4 @@
+# sauce https://www.usga.org/handicapping/roh/2020-rules-of-handicapping.html
 import statistics as stats
 
 def handicap(games: list[dict]) -> float:
@@ -59,6 +60,7 @@ def calcDifferential(shots: list[int], courseRating: int, slopeRating: int, pcc:
     """
 
     total = sum(shots)
+    adjusted = netDoubleBogey(total)
     #TODO consider unfinished games
     if len(shots) == 18:
         differential =(total - courseRating + pcc ) * (113 / slopeRating)
