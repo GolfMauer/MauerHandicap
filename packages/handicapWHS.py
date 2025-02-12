@@ -1,3 +1,6 @@
+import statistics as stats
+
+
 def handicap(games: list[dict]) -> float:
     """
     calculates the handicap given 0 to 20 games and returns the handicap unrounded. 
@@ -13,7 +16,6 @@ def handicap(games: list[dict]) -> float:
         raise ValueError(f"Invalid parameter: len(games) = {len(games)}. You can only add a max of 20 games.")
 
     numGames = len(games)
-    
     differentials = []
     for game in games:
         differentials.append(game["handicap_dif"])
@@ -26,22 +28,22 @@ def handicap(games: list[dict]) -> float:
     elif numGames == 5:
         handicap = differentials[0]
     elif numGames == 6:
-        average = (differentials[0] + differentials[1])/2
+        average = stats.mean(differentials[:2])
         handicap = round(average - 1, 1)
     elif numGames <= 8:
-        handicap = (differentials[0] + differentials[1])/2
+        handicap = stats.mean(differentials[:2])
     elif numGames <= 11:
-        handicap = sum(differentials[0:3])/3
+        handicap = sum(differentials[:3])/3
     elif numGames <= 14:
-        handicap = sum(differentials[0:4])/4
+        handicap = sum(differentials[:4])/4
     elif numGames <= 16:
-        handicap = sum(differentials[0:5])/5
+        handicap = sum(differentials[:5])/5
     elif numGames <= 18:
-        handicap = sum(differentials[0:6])/6
+        handicap = sum(differentials[:6])/6
     elif numGames == 19:
-        handicap = sum(differentials[0:7])/7
+        handicap = sum(differentials[:7])/7
     else:
-        bestGames = differentials[0:8] #slice the best 8 games
+        bestGames = differentials[:8] #slice the best 8 games
         handicap = sum(bestGames)/8
     
     return handicap
