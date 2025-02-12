@@ -45,7 +45,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     for i in range(len(course["strokeIndex"])):
         if i+1 < handicapStrokes:
             pass
-        course["par"][course["strokeIndex"][i]-1] += 1 + handicapStrokes // (9*(game["is9Hole"]+1) + i+1) # absolutely bonkers math going on here
+        course["par"][course["strokeIndex"][i]-1] += 1 + (handicapStrokes-1) // 9*((not game["is9Hole"])+1) # absolutely bonkers math going on here
     
     stableford = convertToStableford(game["shots"], course["par"])
     
