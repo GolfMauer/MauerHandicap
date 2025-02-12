@@ -48,7 +48,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
             pass
         course["par"][course["strokeIndex"][i]] += 1 + handicapStrokes // (9*(game["is9Hole"]+1) + i+1) # absolutely bonkers math going on here
     
-    stableford = convertToStableford(game["shots"], course["pa"])
+    stableford = convertToStableford(game["shots"], course["par"])
     
     # if 9-hole, add 18 points, to be RECORDED
     if game["is9Hole"]:
