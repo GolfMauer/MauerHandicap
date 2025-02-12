@@ -210,11 +210,9 @@ def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating
         float: The playing handicap differential.
     """
     if nineHole:
-        base = playingHandicap9(36.0, courseRating, slopeRating, par)
+        return playingHandicap9(36.0, courseRating, slopeRating, par) - 18.0
     else:
-        base = playingHandicap18(36.0, courseRating, slopeRating, par)
-    
-    return base - 36.0
+        return playingHandicap18(36.0, courseRating, slopeRating, par) - 36.0
 
 def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole: bool) -> float:
     """
