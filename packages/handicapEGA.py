@@ -1,3 +1,4 @@
+# sauce https://www.ega-golf.ch/sites/default/files/hcp_booklet_2019_final_0.pdf
 import math
 
 BUFFER_UPPER_LIMIT = 36
@@ -5,6 +6,7 @@ BELOW_BUFFER_ADD = 0.1
 BUFFER_LOWER_LIMIT_9HOLE = [None, 35, 35, 34, 33, None]
 
 
+# implements p.25 3.11.5
 def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
     """
     Calculates handicap for a player based on their score and whether they played a nine-hole game.
@@ -38,7 +40,8 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     
     stableford = 0
     handicapStrokes = playingHandicap(game["is9Hole"], previousHandicap, course["course_rating"], course["slope_rating"], sum(course["par"]))
-    
+
+    # implements p.24 3.9.7
     # assigning handicap strokes
     for i in range(len(course["strokeIndex"])):
         if i+1 < handicapStrokes:
@@ -55,6 +58,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
 
     return previousHandicap + adjustment
 
+# implements 3.10
 def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
     """
     Converts golf scores to Stableford points.
@@ -71,6 +75,7 @@ def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
         score += max(0, 2 - (shots[i] - adjustedPar[i]))
     return score
 
+# implements p24 3.9.3
 def roundHalfUp(n, decimals=0) -> float:
     """
     Rounds a number to a specified number of decimal places using the "round half up" strategy. (Always round up on 0.5)
@@ -98,14 +103,16 @@ def playingHandicap18(handicap: float, courseRating: float, slopeRating: float, 
     Returns:
         int: The calculated playing handicap, rounded to the nearest integer.
     """
-    
+
+    # implements p24 3.9.3
     # category 1-5
     if handicapToCategory(handicap) < 6:
         raw = handicap * (slopeRating / 113) + (courseRating - par)
     # category 6
     else:
         raw = handicap + playingHandicapDifferential(False, courseRating, slopeRating, par)
-    
+
+    # implements p24 3.9.3
     return int(roundHalfUp(raw))
 
 def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
@@ -114,14 +121,15 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     
     Args:
         handicap (float): The player's handicap index.
-        courseRating (float): The course rating, which represents the difficulty of a course for a scratch golfer.
-        slopeRating (float): The slope rating, which represents the relative difficulty of a course for a bogey golfer compared to a scratch golfer.
-        par (int): The par for the course.
+        courseRating (float): The 9 hole course rating, which represents the difficulty of a course for a scratch golfer.
+        slopeRating (float): The 9 hole slope rating, which represents the relative difficulty of a course for a bogey golfer compared to a scratch golfer.
+        par (int): The 9 hole par for the course.
         
     Returns:
         int: The calculated playing handicap, rounded to the nearest integer.
     """
     category = handicapToCategory(handicap)
+    # implements p22 3.9.4a
     if category > 1 and category < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
     if category is 6:
@@ -148,6 +156,7 @@ def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRa
         return playingHandicap9(handicap, courseRating, slopeRating, par)
     return playingHandicap18(handicap, courseRating, slopeRating, par)
 
+# implements p.13 handicap category
 def handicapToCategory(handicap: float) -> int:
     """
     Converts handicap index to handicap category
@@ -170,6 +179,7 @@ def handicapToCategory(handicap: float) -> int:
         return 5
     return 6
 
+# implements p.12 buffer zone
 def catToLowerBuffer(is9Hole: bool, category: int) -> int:
     """
     Caculates the lower buffer zone limit for a category.
@@ -185,6 +195,7 @@ def catToLowerBuffer(is9Hole: bool, category: int) -> int:
         return BUFFER_LOWER_LIMIT_9HOLE[category-1]
     return BUFFER_UPPER_LIMIT - category
 
+# implements p22 3.9.4
 def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating: float, par: int) -> float:
     """
     Calculate the playing handicap differential for a golf course.
