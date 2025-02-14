@@ -101,19 +101,44 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
     Returns:
     int: the adjusted score/strokes
     """
-    courseHandicap = calcCourseHandicap(game, course, handicapIndex)
+    # I am not 100% certain that playing HC is used here
+    playingHandicap = calcPlayingHandicap(game, course, handicapIndex)
 
     shots: list[int] = game["shots"]
     par: list[int] = course["par"]
     # implements 3.1a
-    if courseHandicap >= 54 or handicapIndex == 54:
+    if handicapIndex == 54:
         for i, shot in enumerate(shots):
             if shot > par[i] + 5:
                 shots[i] = par[i] + 5
     # implements 3.1b
+    elif playingHandicap >= 54:
+        adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
+        for i, shot in enumerate(shots):
+            if shot > adjustedPar[i] + 2:
+                if adjustedPar[i] + 2 - shot >= 4:
+                    shots[i] = par[i] + 5
+                else:
+                    shots[i] = adjustedPar[i] + 2
     else:
         # TODO discuss if it is truly the same way in EGA and WHS
         adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
                 shots[i] = adjustedPar[i] + 2
+
+
+#
+def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
+    """
+    calculates the Playing Handicap. By default it is equal to the course handicap
+    """
+    # implements 6.1a and implements 6.1b
+    modifier = 2 if game["is9hole"] else 1
+    courseHandicap = handicapIndex * course["slope_rating"] / 113 + modifier*(course["course_rating" - sum(course["par"])])
+
+    # implements 6.2a
+    handicapAllowance = 1 if game["handicap_allowance"] is None else game["handicap_allowance"]
+    playingHandicap = courseHandicap * handicapAllowance
+
+    return playingHandicap
