@@ -69,8 +69,7 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
     Returns:
     dict: the game with the new entry
     """
-    total = sum(game["shots"])
-    adjusted = adjustGrossScore(total)
+    adjusted = adjustGrossScore(game, course, handicapIndex)
     
 
     # implements 5.1a and 2.2a
@@ -88,3 +87,33 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
     game["handicap_dif"] = roundHalfUp(differential, 1)
 
     return game
+
+
+def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
+    """
+    Adjusts the score/strokes and applies net double bogey adjustment.
+
+    Args:
+    game (dict): The game the calculation is being done on.
+    course (dict): The course corresponding to the game.
+    handicapIndex (float): The current handicap Index.
+
+    Returns:
+    int: the adjusted score/strokes
+    """
+    courseHandicap = calcCourseHandicap(game, course, handicapIndex)
+
+    shots: list[int] = game["shots"]
+    par: list[int] = course["par"]
+    # implements 3.1a
+    if courseHandicap >= 54 or handicapIndex == 54:
+        for i, shot in enumerate(shots):
+            if shot > par[i] + 5:
+                shots[i] = par[i] + 5
+    # implements 3.1b
+    else:
+        # TODO discuss if it is truly the same way in EGA and WHS
+        adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
+        for i, shot in enumerate(shots):
+            if shot > adjustedPar[i] + 2:
+                shots[i] = adjustedPar[i] + 2
