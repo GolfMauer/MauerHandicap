@@ -48,7 +48,7 @@ def handicap(games: list[dict]) -> float:
     else:
         handicap = stats.mean(differentials[:8])
     
-    # checks if at least 54 holes where played
+    # checks if at least 54 holes where played I do not know where the correlating rule was
     enoughHoles = sum([len(game["shots"]) for game in games]) >= 54
 
     # implements 5.3
@@ -141,4 +141,4 @@ def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     handicapAllowance = 1 if game["handicap_allowance"] is None else game["handicap_allowance"]
     playingHandicap = courseHandicap * handicapAllowance
 
-    return playingHandicap
+    return round(playingHandicap, 1)
