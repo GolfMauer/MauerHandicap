@@ -69,13 +69,8 @@ class MauerDB(TinyDB):
                 "pcc": pcc 
             }
         
-        game = hc.handicapDifferential(game, course)
-        
-        currentGames = self.getGames()
-        handicap = hc.handicap(currentGames)
-
-        game = hc.handicapDifferentialNet(handicap, game, course)
-        game = hc.handicapDifferentialStableford(game, course)
+        # TODO implement handicapIndex table and getter
+        game = hc.handicapDifferential(game, course, handicapIndex)
         
         self.insert(game)
 

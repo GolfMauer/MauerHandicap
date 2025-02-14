@@ -42,13 +42,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
 
     # implements p.24 3.9.7
     # assigning handicap strokes
-    par = course["par"]
-    strokeIndex = course["strokeIndex"]
-    
-    for i in range(len(strokeIndex)):
-        if i+1 < handicapStrokes:
-            pass
-        par[strokeIndex[i]-1] += 1 + (handicapStrokes-1) // 9*((not game["is9Hole"])+1) # absolutely bonkers math going on here
+    par = spreadPlayingHC(course, handicapStrokes, game["is9Hole"])
     
     stableford = convertToStableford(game["shots"], par)
     
@@ -59,6 +53,18 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     adjustment = calculateAdjustment(stableford, previousHandicap, cba)
 
     return previousHandicap + adjustment
+
+def spreadPlayingHC(course: dict, strokes: int, nineHole: bool) -> list[int]:
+    """
+    
+    """
+    par = course["par"]
+    strokeIndex = course["strokeIndex"]
+    
+    for i in range(len(strokeIndex)):
+        if i+1 < strokes:
+            pass
+        par[strokeIndex[i]-1] += 1 + (strokes-1) // 9*((not nineHole)+1) # absolutely bonkers math going on here
 
 # implements 3.10
 def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:

@@ -24,7 +24,7 @@ def one_game(temp_db):
     mock_data = [
         {
             "game_id": "1",
-            "handicap": 0.0, 
+            "handicap_differential": 0.0, 
             "courseID": "Womp Womp",
             "date": "2024-12-03T11:41:30.013870",
             "shots": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5]
@@ -47,7 +47,7 @@ def three_games(temp_db):
     for i in range(1, 4):
         mock_data.append({
             "game_id": str(i),
-            "handicap": round(random.uniform(0.0, 54.0), 1),
+            "handicap_differential": round(random.uniform(0.0, 54.0), 1),
             "courseID": random.choice(course_names),
             "date": (base_date - timedelta(days=i)).isoformat(),
             "shots": [random.randint(3, 6) for _ in range(18)]
@@ -71,7 +71,7 @@ def four_games(temp_db):
     for i in range(1, 5):
         mock_data.append({
             "game_id": str(i),
-            "handicap": round(random.uniform(0.0, 54.0), 1),
+            "handicap_differential": round(random.uniform(0.0, 54.0), 1),
             "courseID": random.choice(course_names),
             "date": (base_date - timedelta(days=i)).isoformat(),
             "shots": [random.randint(3, 6) for _ in range(18)]
@@ -95,7 +95,7 @@ def five_games(temp_db):
     for i in range(1, 6):
         mock_data.append({
             "game_id": str(i),
-            "handicap": round(random.uniform(0.0, 54.0), 1),
+            "handicap_differential": round(random.uniform(0.0, 54.0), 1),
             "courseID": random.choice(course_names),
             "date": (base_date - timedelta(days=i)).isoformat(),
             "shots": [random.randint(3, 6) for _ in range(18)]
@@ -119,7 +119,7 @@ def six_games(temp_db):
     for i in range(1, 7):
         mock_data.append({
             "game_id": str(i),
-            "handicap": round(random.uniform(0.0, 54.0), 1),
+            "handicap_differential": round(random.uniform(0.0, 54.0), 1),
             "courseID": random.choice(course_names),
             "date": (base_date - timedelta(days=i)).isoformat(),
             "shots": [random.randint(3, 6) for _ in range(18)]
@@ -142,7 +142,7 @@ def multiple_games(temp_db):
     for i in range(1, 22):
         mock_data.append({
             "game_id": str(i),
-            "handicap": round(random.uniform(0.0, 54.0), 1),
+            "handicap_differential": round(random.uniform(0.0, 54.0), 1),
             "courseID": random.choice(course_names),
             "date": (base_date - timedelta(days=i)).isoformat(),
             "shots": [random.randint(3, 6) for _ in range(18)]
@@ -192,15 +192,5 @@ def test_handicap_21_games(multiple_games):
 
 def test_handicap_differential():
     result = handicapWHS.handicapDifferential()
-    # Add appropriate assertions
-    assert 1 == 1  # Replace with actual assertion logic
-
-def test_handicap_differential_net():
-    result = handicapWHS.handicapDifferentialNet()
-    # Add appropriate assertions
-    assert 1 == 1  # Replace with actual assertion logic
-
-def test_handicap_differential_stableford():
-    result = handicapWHS.handicapDifferentialStableford()
     # Add appropriate assertions
     assert 1 == 1  # Replace with actual assertion logic

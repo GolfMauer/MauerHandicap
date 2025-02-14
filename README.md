@@ -7,7 +7,7 @@ For the security of our grades a great great wall has to be build.
 To ensure efficient progress on our MAUER the folders are structured as follows: <br>
 │ <br>
 ├── test (Data for Testing the functionality of the mauer; maybe also tests if it makes sense to separate them) <br>
-│   ├── courses (Test courses Dir) <br>
+│   ├── courses (Test courses Dir; Name: \<name\>-\<tee\>-\<gender\>) <br>
 │   └── games (Test games Dir) <br>
 ├── db (PROD DB location) <br>
 │   └── db.json <br>
