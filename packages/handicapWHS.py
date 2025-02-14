@@ -31,8 +31,7 @@ def handicap(games: list[dict]) -> float:
     elif numGames == 5:
         handicap = differentials[0]
     elif numGames == 6:
-        average = stats.mean(differentials[:2])
-        handicap = round(average - 1, 1)
+        handicap = stats.mean(differentials[:2]) - 1
     elif numGames <= 8:
         handicap = stats.mean(differentials[:2])
     elif numGames <= 11:
@@ -82,7 +81,7 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
         expectedScore = 0.52 * handicapIndex + 1.2
         differential = score + expectedScore
     else:
-        raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game needs to have 9 or more holes.")
+        raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game needs to have 9 or more played holes.")
     
     game["handicap_dif"] = roundHalfUp(differential, 1)
 
@@ -132,6 +131,14 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
 def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     """
     calculates the Playing Handicap. By default it is equal to the course handicap
+
+    Args:
+    game (dict): The game the calculation is being done on.
+    course (dict): The course corresponding to the game.
+    handicapIndex (float): The current handicap Index.
+
+    Returns:
+    int: Rounded Playing Handicap
     """
     # implements 6.1a and implements 6.1b
     modifier = 2 if game["is9hole"] else 1
@@ -141,4 +148,7 @@ def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     handicapAllowance = 1 if game["handicap_allowance"] is None else game["handicap_allowance"]
     playingHandicap = courseHandicap * handicapAllowance
 
-    return round(playingHandicap, 1)
+    return round(playingHandicap)
+
+#TODO
+#5.4 and 5.7 - 5.9 but rely on cron jub would handle them on different branch
