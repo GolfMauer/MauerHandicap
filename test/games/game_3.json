@@ -1,8 +1,6 @@
 {
     "game_id": "ball",
-    "handicap": 14.3,
-    "handicap_net": 14.3,
-    "stableford": 14.3,
+    "handicap_differential": 14.3,
     "courseID": "Womp Womp",
     "date": "2024-10-03T11:41:30.013870",
     "shots": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5],
