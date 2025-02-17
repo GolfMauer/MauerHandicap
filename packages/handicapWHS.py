@@ -51,7 +51,7 @@ def handicap(games: list[dict]) -> float:
     enoughHoles = sum([len(game["shots"]) for game in games]) >= 54
 
     # implements 5.3
-    if handicap > 54 or enoughHoles: handicap = 54
+    if handicap > 54 or not enoughHoles: handicap = 54
         
     return roundHalfUp(handicap, 1)
 
