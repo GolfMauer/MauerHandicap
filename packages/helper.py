@@ -30,7 +30,7 @@ class Helper:
             data = json.load(json_file)
             table.insert(data)
 
-    def addCourse(self, courseID: str, courseRating: int, slopeRating: int, par: list[int], table: TinyDB=None) -> None:
+    def addCourse(self, courseID: str, courseRating: int, slopeRating: int, par: list[int]) -> None:
         """
         Adds a new game to tinyDB.
 
@@ -44,7 +44,7 @@ class Helper:
         Returns:
         None
         """
-        table = self.courses if table == None else table
+        
 
 
         if not (55 <= slopeRating <= 155):
@@ -54,16 +54,14 @@ class Helper:
                 "slope_rating": slopeRating, 
                 "par": par
         }
-        table.insert(data)
+        self.courses.insert(data)
 
     def addGame(self, 
                 courseID: str, 
                 shots: list[int], 
                 pcc: float=0 , 
-                date: datetime.datetime | str=datetime.datetime.now(), 
-                table: TinyDB=None, 
-                courseTable: TinyDB=None,
-                cronTable: TinyDB=None) -> str:
+                date: datetime.datetime | str=datetime.datetime.now()
+                ) -> str:
         """
         Adds a new game to tinyDB.
 
@@ -77,12 +75,7 @@ class Helper:
 
         Returns: str: the uuid in hex format
         """
-        table = self.games if table == None else table
-        courseTable = self.courses if courseTable == None else course
-        cronTable = self.cron if cronTable == None else cronTable
-
         #TODO check course, pcc,
-        #TODO check max amount of shots (Net-Double-Bogey)
 
         id = uuid.uuid4().hex
         game = { 
@@ -94,18 +87,18 @@ class Helper:
             }
         
         # TODO implement handicapIndex table and getter
-        course = self.getCourses([game], courseTable)
-        game = whs.handicapDifferential(game, course, handicapIndex)
+        course = self.getCourses([game], self.courses)
+        game = whs.handicapDifferential(game, course, handicapIndex) # TODO call getHCLog
         
-        table.insert(game)
+        self.games.insert(game)
 
         # insert into cron for future calculation
-        cronTable.insert({ "game_id": id })
+        self.cron.insert({ "game_id": id })
 
         return id
 
 
-    def getLastGames(self, n: int=0, m: int=19, table: TinyDB=None) -> list[dict]:
+    def getLastGames(self, n: int=0, m: int=19) -> list[dict]:
         """
         returns the last n to m (inclusive) games, where n is the lowest index and m is the highest index.
         Defaults to the last 20 games or less if there are less than 20 games
@@ -117,9 +110,8 @@ class Helper:
         Returns:
         List[dict]: A list of games between the indices.
         """
-        table = self.games if table == None else table
-
-        games = table.all()
+        
+        games = self.games.all()
 
         if not games:
             return []
@@ -135,8 +127,13 @@ class Helper:
 
         return sorted_games[n:m + 1]
     
+
+    def getHCLog():
+        """
+        get n m date HC Log
+        """
     
-    def getCourses(self, games: list[dict], table: TinyDB=None) -> list[dict]:
+    def getCourses(self, games: list[dict]) -> list[dict]:
         """
         returns the courses played given n games
 
@@ -147,20 +144,18 @@ class Helper:
         Returns:
         List[dict]: A list of courses played.
         """
-        table = self.courses if table == None else table
-
         unique_courses = {game["courseID"] for game in games}  # Use a set for unique course IDs
         query = Query()
 
         result = []
         for course_id in unique_courses:
-            data = table.search(query.courseID == course_id)
+            data = self.courses.search(query.courseID == course_id)
             result.extend(data)  # Extend the result list with the search results
 
         return result
 
 
-    def cronHCCalc(self, write: bool=True, cronTable: TinyDB=None, gamesTable: TinyDB=None):
+    def cronHCCalc(self, write: bool=True):
         """
         Calculates the new handicap if the current date and the date of one of the games in the cron table differ.
         Optionally you can just get the value by setting write=false
@@ -170,12 +165,9 @@ class Helper:
         cronTable (TinyDB): allows you to change the default table, should not be needed
         gamesTable (TinyDB): allows you to change the default table, should not be needed
         """
-        cron = self.cron if cronTable == None else cronTable
-        games = self.cron if gamesTable == None else gamesTable
-        
         Game = Query()
         ids = self.cron.all()
-        games = games.search(Game.game_id.one_of(ids))
+        games = self.games.search(Game.game_id.one_of(ids))
         games = sorted(games, key=lambda x: datetime.datetime.fromisoformat(x['date']))
 
         now = datetime.datetime.now()
