@@ -43,11 +43,17 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     # implements p.24 3.9.7
     # assigning handicap strokes
     par = course["par"]
-    strokeIndex = course["strokeIndex"]
+    strokeIndex = course["handicap_stroke_index"]
     
+    # strokes <= holes
+
     for i in range(len(strokeIndex)):
-        if i+1 < handicapStrokes:
-            pass
+        if handicapStrokes <= len(par):
+            if handicapStrokes == 0:
+                break
+            for i in range(handicapStrokes):
+                par[strokeIndex[i]-1] += 1
+            break
         par[strokeIndex[i]-1] += 1 + (handicapStrokes-1) // 9*((not game["is9Hole"])+1) # absolutely bonkers math going on here
     
     stableford = convertToStableford(game["shots"], par)
@@ -56,7 +62,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     if game["is9Hole"]:
         stableford += 18
 
-    adjustment = calculateAdjustment(stableford, previousHandicap, cba)
+    adjustment = calculateAdjustment(stableford, previousHandicap, cba, game["is9Hole"])
 
     return previousHandicap + adjustment
 
@@ -142,6 +148,7 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
 def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
     """
     Calculate the playing handicap for a golfer based on whether they are playing a 9-hole or 18-hole course.
+    The playing handicap describes the amount of strokes a player receivees on a given course for their handicap.
     
     Args:
         is9Hole (bool): True if the golfer is playing a 9-hole course, False if playing an 18-hole course.
