@@ -1,23 +1,23 @@
 import datetime
-from packages.mauerDB  import MauerDB
+from tinydb import TinyDB
+from packages.helper  import Helper
 import os
 
 # Define the database directory and file path
-db_dir = "./db"
-db_path = os.path.join(db_dir, "database.json")
+db_dir = "./db" #should maybe be changed to %APPDATA%
+db_path = os.path.join(db_dir, "db.json")
 
 # Ensure the directory exists
 os.makedirs(db_dir, exist_ok=True)
 
 # Initialize the database
-db = MauerDB(db_path)
+db = TinyDB(db_path)
 
 # Initialize tables
-gamesTable = db.table("games") # stores the games that were already calculated
-courseTable = db.table("courses") # stores the courses
-cronTable = db.table("cron") # stores the games that are not in the calculation yet TODO maybe inconvenient to have games split for browsing
-hcLogTable = db.table("hcLog") # stores the old HCs max one per day
+games = db.table("games", cache_size=20) # stores the games that were already calculated
+courses = db.table("courses") # stores the courses
+cron= db.table("cron", cache_size=0) # stores a reference to the games that are not in the calculation yet
+hcLog = db.table("hcLog", cache_size=366) # stores the old HCs max one per day
 
-# Insert base Handicap
-if len(hcLogTable) == 0:
-    gamesTable.insert({"ega": 54, "whs": 54, "date": datetime.datetime.now().isoformat()})
+# creating instance of Helper and setting default tables
+help = Helper(games, courses, cron, hcLog)
