@@ -252,7 +252,7 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
     lower = catToLowerBuffer(is9Hole, category)
     if stablefordScore < lower + cba:
         # cannot go back to cat 6
-        for _ in range(lower - stablefordScore):
+        for _ in range(stablefordScore - lower):
             if handicapToCategory(handicap + adjustment) is 6:
                 if adjustment > 0 :
                     return adjustment - BELOW_BUFFER_ADD
