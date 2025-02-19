@@ -15,6 +15,11 @@ class Helper:
         self.hcLog = hcLog
 
 
+    def updateHandicapIndex(self):
+        whs.handicap(self.getLastGames())
+        ega.calculateNewHandicap(game, cba, previousHandicap, course)
+
+
     def insertFromDir(self, table: TinyDB, path: str) -> None:
         """
         Inserts all the files in the given directory into the given db/table
@@ -59,7 +64,8 @@ class Helper:
     def addGame(self, 
                 courseID: str, 
                 shots: list[int], 
-                pcc: float=0 , 
+                pcc: float=0 ,
+                cba: float=0,
                 date: datetime.datetime | str=datetime.datetime.now()
                 ) -> str:
         """
@@ -69,6 +75,7 @@ class Helper:
         courseID (str): e.g. the name of the course
         shots (list[int]): The shots that were needed for each whole. E.g. [2,3] 2 shots for for first hole, 3 shots for second hole
         pcc (float): The weather adjustment; by default 0
+        cba (float): Buffer adjustment for EGA; by default 0
         date (datetime.datetime | str): The date the game was played on; you can either pass the datetime object or the iso-string by default time.now()
         table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary
         courseTable (TinyDB): as this function does a query to tiny db, this allows you to change the default course table 
@@ -83,12 +90,14 @@ class Helper:
                 "courseID": courseID, 
                 "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date, 
                 "shots": shots, 
-                "pcc": pcc 
+                "pcc": pcc,
+                "cba": cba
             }
         
-        # TODO implement handicapIndex table and getter
+
+        # TODO see if patrick has to do anything in here
         course = self.getCourses([game], self.courses)
-        game = whs.handicapDifferential(game, course, handicapIndex) # TODO call getHCLog
+        game = whs.handicapDifferential(game, course, self.getHCLog(m=0))
         
         if game["exceptional_reduction"] != 0.0:
             Game = Query()

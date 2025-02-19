@@ -6,6 +6,7 @@
     "shots": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5],
     "exceptional_reduction": -1.0,
     "pcc" : 3.0,
+    "cba" : 3.0,
     "is9Hole": false,
     "handicap_allowance": 0.75
 }
