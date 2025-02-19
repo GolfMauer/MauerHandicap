@@ -14,10 +14,25 @@ class Helper:
         self.cron = cron
         self.hcLog = hcLog
 
+    # implements whs 5.4
+    def updateHandicapIndex(self, game:dict, date: datetime.datetime | str):
+        """
+        Calculates the updated HC and inserts it into the db
 
-    def updateHandicapIndex(self):
-        whs.handicap(self.getLastGames())
-        ega.calculateNewHandicap(game, cba, previousHandicap, course)
+        Args:
+        date (datetime.datetime): date on which the game that triggered the update was caused
+        """
+        date = date if isinstance(date, (datetime.date, datetime.datetime)) else datetime.datetime.fromisoformat(date)
+
+        cba = game["cba"]
+        previousHandicap = self.getHCLog(m=0)
+        course = self.getCourses(game["courseID"])[0]
+
+        whsHC = whs.handicap(self.getLastGames())
+        egaHC = ega.calculateNewHandicap(game, cba, previousHandicap, course)
+
+        # +1 day since the update is issued one day later
+        self.hcLog.insert({ "whs": whsHC, "ega": egaHC, "date": (date + datetime.timedelta(days=1)) })
 
 
     def insertFromDir(self, table: TinyDB, path: str) -> None:
