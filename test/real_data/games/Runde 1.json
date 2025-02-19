@@ -1,10 +1,12 @@
 {
     "game_id": "Runde 1",
     "handicap_dif": 0.0,
-    "handicap_net": 0.0,
-    "stableford": 0.0,
     "courseID": "Runde 1",
     "date": "2025-02-11T12:00:00.000000",
     "shots": [5, 6, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6, 5, 6, 6, 6, 5, 6],
-    "pcc": 0.0
+    "exceptional_reduction": 0.0,
+    "pcc": 0.0,
+    "cba" : 0.0,
+    "is9Hole": false,
+    "handicap_allowance": 1
 }

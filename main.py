@@ -36,3 +36,4 @@ def HCCron() -> None:
         docDate = datetime.fromisoformat(doc["date"])
         if (today - docDate).days >= 1:
             help.updateHandicapIndex(doc, datetime.fromisoformat(doc["date"]))
+            
