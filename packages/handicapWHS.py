@@ -21,7 +21,8 @@ def handicap(games: list[dict]) -> float:
     numGames = len(games)
     differentials = []
     for game in games:
-        differentials.append(game["handicap_dif"])
+        # implements 5.9
+        differentials.append(game["handicap_dif"] + game["exceptional_reduction"])
     differentials.sort()
     
     if numGames <= 3:
@@ -82,6 +83,15 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
         differential = score + expectedScore
     else:
         raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game needs to have 9 or more played holes.")
+    
+    # implements 5.9 exceptional score reduction
+    delta = handicapIndex - differential
+    if delta >= 7 and delta < 10:
+        game["exceptional_reduction"] = -1.0
+    elif delta >= 10:
+        game["exceptional_reduction"] = -2.0
+    else:
+        game["exceptional_reduction"] = 0.0
     
     game["handicap_dif"] = roundHalfUp(differential, 1)
 

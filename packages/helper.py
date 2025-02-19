@@ -90,6 +90,16 @@ class Helper:
         course = self.getCourses([game], self.courses)
         game = whs.handicapDifferential(game, course, handicapIndex) # TODO call getHCLog
         
+        if game["exceptional_reduction"] != 0.0:
+            Game = Query()
+            ids = [game["game_id"] for game in self.getLastGames(0, 18)]
+            self.games.update(
+                lambda doc: { # for each game tinyDB iterates over it hands the current doc to the lambda function
+                    "exceptional_reduction": doc.get("exceptional_reduction", 0) + game["exceptional_reduction"]
+                },
+                Game.game_id.one_of(ids)
+            )
+
         self.games.insert(game)
 
         # insert into cron for future calculation
