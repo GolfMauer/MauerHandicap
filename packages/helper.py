@@ -21,6 +21,7 @@ class Helper:
 
         Args:
         date (datetime.datetime): date on which the game that triggered the update was caused
+        help (Helper): The helper from main with the references to the tables
         """
         date = date if isinstance(date, (datetime.date, datetime.datetime)) else datetime.datetime.fromisoformat(date)
 
@@ -28,7 +29,13 @@ class Helper:
         previousHandicap = self.getHCLog(m=0)
         course = self.getCourses(game["courseID"])[0]
 
-        whsHC = whs.handicap(self.getLastGames())
+        latestGames = self.getLastGames()
+        latestEntry = max(latestGames, key=lambda x: x['date'])
+        hcLog = self.getHCLog(startDate=latestEntry["date"])
+
+        lowHandicap = min(hcLog, key=lambda x: x['date'])
+
+        whsHC = whs.handicap(latestGames, lowHandicap["whs"])
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap, course)
 
         # +1 day since the update is issued one day later

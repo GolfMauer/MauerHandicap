@@ -3,12 +3,14 @@ import statistics as stats
 from .handicapEGA import roundHalfUp, spreadPlayingHC
 
 # implements 5.2a
-def handicap(games: list[dict]) -> float:
+def handicap(games: list[dict], lowHandicap: float) -> float:
     """
     calculates the handicap given 0 to 20 games and returns the handicap unrounded. 
     
     Args:
     games (list[dict]): up to the last 20 games
+    lowHandicap (float): The Low Handicap Index represents the last 365-day period preceding the day 
+        on which the most recent score in their scoring record was played.
 
     Returns:
     float: The handicap index
@@ -47,6 +49,9 @@ def handicap(games: list[dict]) -> float:
         handicap = stats.mean(differentials[:7])
     else:
         handicap = stats.mean(differentials[:8])
+
+        # implements 5.7+8
+        handicap = capIncrease(handicap, games, lowHandicap)
     
     # checks if at least 54 holes where played I do not know where the correlating rule was
     enoughHoles = sum([len(game["shots"]) for game in games]) >= 54
@@ -55,6 +60,26 @@ def handicap(games: list[dict]) -> float:
     if handicap > 54 or not enoughHoles: handicap = 54
         
     return roundHalfUp(handicap, 1)
+
+
+# implements 5.7+8
+def capIncrease(handicap: float, games: list[dict], lowHandicap: float) -> float:
+    """
+    Applies soft/hard cap to the HCI.
+
+    Args:
+    handicap (float): The new Handicap Index
+    game (list[dict]): the last 20 games
+    lowHandicap (float): The 365 low of the Handicap Index
+    """
+    dif = handicap - lowHandicap
+    # apply soft cap
+    if dif > 3.0 < 5.0:
+        handicap = handicap - 0.5*dif
+    elif dif >= 5.0:
+        handicap = lowHandicap["whs"] + 5.0
+    
+    return handicap
 
 
 def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
