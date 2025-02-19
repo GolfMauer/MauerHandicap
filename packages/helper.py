@@ -138,10 +138,36 @@ class Helper:
         return sorted_games[n:m + 1]
     
 
-    def getHCLog():
+    def getHCLog(self, n: int=0, m: int=365, startDate: datetime.datetime=None) -> list[dict]:
         """
-        get n m date HC Log
+        get n m(inclusive) HC Log data. By default set to n=0 and m=365 so last 365 days
+        E.g. you want the 15.03 - 15.06 the last update in the time frame was on
+        the 02.03. So you'll receive the data from 02.03 - 15.06
+        Optionally a different starting date than today can be set.
+
+        Args:
+        n (int): The lower bound (in days).
+        m (int): The upper bound (in days).
+        startDate(datetime.datetime): The reference start date for filtering. Defaults to the current datetime if not provided.
+
+        Returns:
+        list[dict]: The handicap log entries within your timeframe. Oldest entry first
         """
+        if startDate is None:
+            startDate = datetime.datetime.now()
+
+        log = self.cron.all()
+        log.sort(key=lambda doc: datetime.datetime.fromisoformat(doc["date"]), reverse=True)
+
+        data = [ doc for doc in log if n <= (startDate - datetime.datetime.fromisoformat(doc["date"])).days < m
+        ]
+
+        if len(data) < len(log):
+            data.append(log[len(data) + n])
+        
+        return data
+
+
     
     def getCourses(self, games: list[dict]) -> list[dict]:
         """
@@ -165,7 +191,7 @@ class Helper:
         return result
 
 
-    def cronHCCalc(self, write: bool=True):
+    def cronHCCalc(self, write: bool=True) -> None:
         """
         Calculates the new handicap if the current date and the date of one of the games in the cron table differ.
         Optionally you can just get the value by setting write=false
