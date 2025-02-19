@@ -151,7 +151,7 @@ class Helper:
         startDate(datetime.datetime): The reference start date for filtering. Defaults to the current datetime if not provided.
 
         Returns:
-        list[dict]: The handicap log entries within your timeframe. Oldest entry first
+        list[dict]: The handicap log entries within your timeframe. Newest entry first
         """
         if startDate is None:
             startDate = datetime.datetime.now()
