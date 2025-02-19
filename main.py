@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from tinydb import Query, TinyDB
 from packages.helper  import Helper
 import os
@@ -31,8 +31,8 @@ def HCCron() -> None:
     ids = cron.all()
     docs = games.search(Game.game_id.one_of(ids))
     
-    today = datetime.datetime.now()
+    today = datetime.now()
     for doc in docs:
-        docDate = datetime.datetime.fromisoformat(doc["date"])
+        docDate = datetime.fromisoformat(doc["date"])
         if (today - docDate).days >= 1:
-            help.updateHandicapIndex(doc, datetime.datetime.fromisoformat(doc["date"]))
+            help.updateHandicapIndex(doc, datetime.fromisoformat(doc["date"]))

@@ -1,6 +1,6 @@
 from tinydb import TinyDB, Query
 import json
-import datetime
+from datetime import date, datetime, timedelta
 from os import listdir
 from os.path import isfile, join
 import packages.handicapWHS as whs
@@ -15,15 +15,15 @@ class Helper:
         self.hcLog = hcLog
 
     # implements whs 5.4
-    def updateHandicapIndex(self, game:dict, date: datetime.datetime | str):
+    def updateHandicapIndex(self, game:dict, gameDate: datetime| str):
         """
         Calculates the updated HC and inserts it into the db
 
         Args:
-        date (datetime.datetime): date on which the game that triggered the update was caused
+        gameDate (datetime): Date on which the game that triggered the update was caused
         help (Helper): The helper from main with the references to the tables
         """
-        date = date if isinstance(date, (datetime.date, datetime.datetime)) else datetime.datetime.fromisoformat(date)
+        gameDate = gameDate if isinstance(gameDate, (date, datetime)) else datetime.fromisoformat(gameDate)
 
         cba = game["cba"]
         previousHandicap = self.getHCLog(m=0)
@@ -39,7 +39,7 @@ class Helper:
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap, course)
 
         # +1 day since the update is issued one day later
-        self.hcLog.insert({ "whs": whsHC, "ega": egaHC, "date": (date + datetime.timedelta(days=1)) })
+        self.hcLog.insert({ "whs": whsHC, "ega": egaHC, "date": (gameDate + timedelta(days=1)) })
 
 
     def insertFromDir(self, table: TinyDB, path: str) -> None:
@@ -89,7 +89,7 @@ class Helper:
                 nineHole: bool,
                 pcc: float=0 ,
                 cba: float=0,
-                date: datetime.datetime | str=datetime.datetime.now()
+                gameDate: datetime | str=datetime.now()
                 ) -> str:
         """
         Adds a new game to tinyDB.
@@ -100,7 +100,7 @@ class Helper:
         nineHole (bool): indicate if whether the game was a 9 or 18 hole round
         pcc (float): The weather adjustment; by default 0
         cba (float): Buffer adjustment for EGA; by default 0
-        date (datetime.datetime | str): The date the game was played on; you can either pass the datetime object or the iso-string by default time.now()
+        gameDate (datetime| str): The date the game was played on; you can either pass the datetime object or the iso-string by default time.now()
         table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary
         courseTable (TinyDB): as this function does a query to tiny db, this allows you to change the default course table 
 
@@ -113,7 +113,7 @@ class Helper:
         game = { 
                 "id": id, 
                 "courseID": courseID, 
-                "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date, 
+                "date": date.isoformat() if isinstance(gameDate, (date, datetime)) else gameDate, 
                 "shots": shots, 
                 "pcc": pcc,
                 "cba": cba,
@@ -162,7 +162,7 @@ class Helper:
     
         sorted_games = sorted(
             games, 
-            key=lambda x: datetime.datetime.fromisoformat(x['date']), 
+            key=lambda x: datetime.fromisoformat(x['date']), 
             reverse=True)
         
         # Validate and adjust indices
@@ -172,7 +172,7 @@ class Helper:
         return sorted_games[n:m + 1]
     
 
-    def getHCLog(self, n: int=0, m: int=365, startDate: datetime.datetime=None) -> list[dict]:
+    def getHCLog(self, n: int=0, m: int=365, startDate: datetime=None) -> list[dict]:
         """
         get n m(inclusive) HC Log data. By default set to n=0 and m=365 so last 365 days
         E.g. you want the 15.03 - 15.06 the last update in the time frame was on
@@ -182,18 +182,18 @@ class Helper:
         Args:
         n (int): The lower bound (in days).
         m (int): The upper bound (in days).
-        startDate(datetime.datetime): The reference start date for filtering. Defaults to the current datetime if not provided.
+        startDate(datetime): The reference start date for filtering. Defaults to the current datetime if not provided.
 
         Returns:
         list[dict]: The handicap log entries within your timeframe. Newest entry first
         """
         if startDate is None:
-            startDate = datetime.datetime.now()
+            startDate = datetime.now()
 
         log = self.cron.all()
-        log.sort(key=lambda doc: datetime.datetime.fromisoformat(doc["date"]), reverse=True)
+        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
 
-        data = [ doc for doc in log if n <= (startDate - datetime.datetime.fromisoformat(doc["date"])).days < m
+        data = [ doc for doc in log if n <= (startDate - datetime.fromisoformat(doc["date"])).days < m
         ]
 
         if len(data) < len(log):
@@ -238,11 +238,11 @@ class Helper:
         Game = Query()
         ids = self.cron.all()
         games = self.games.search(Game.game_id.one_of(ids))
-        games = sorted(games, key=lambda x: datetime.datetime.fromisoformat(x['date']))
+        games = sorted(games, key=lambda x: datetime.fromisoformat(x['date']))
 
-        now = datetime.datetime.now()
+        now = datetime.now()
         for game in games:
-            gameDate =  datetime.datetime.fromisoformat(game["date"])
+            gameDate =  datetime.fromisoformat(game["date"])
             if now.date() != gameDate.date():
                 egaHC = ega.calculateNewHandicap() # TODO
                 whsHC = whs.handicap(self.getLastGames())
