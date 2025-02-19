@@ -86,6 +86,7 @@ class Helper:
     def addGame(self, 
                 courseID: str, 
                 shots: list[int], 
+                nineHole: bool,
                 pcc: float=0 ,
                 cba: float=0,
                 date: datetime.datetime | str=datetime.datetime.now()
@@ -96,6 +97,7 @@ class Helper:
         Args:
         courseID (str): e.g. the name of the course
         shots (list[int]): The shots that were needed for each whole. E.g. [2,3] 2 shots for for first hole, 3 shots for second hole
+        nineHole (bool): indicate if whether the game was a 9 or 18 hole round
         pcc (float): The weather adjustment; by default 0
         cba (float): Buffer adjustment for EGA; by default 0
         date (datetime.datetime | str): The date the game was played on; you can either pass the datetime object or the iso-string by default time.now()
@@ -106,6 +108,7 @@ class Helper:
         """
         #TODO check course, pcc,
 
+
         id = uuid.uuid4().hex
         game = { 
                 "id": id, 
@@ -113,10 +116,10 @@ class Helper:
                 "date": date.isoformat() if isinstance(date, (datetime.date, datetime.datetime)) else date, 
                 "shots": shots, 
                 "pcc": pcc,
-                "cba": cba
+                "cba": cba,
+                "is9hole": nineHole
             }
         
-
         # TODO see if patrick has to do anything in here
         course = self.getCourses([game], self.courses)
         game = whs.handicapDifferential(game, course, self.getHCLog(m=0))
