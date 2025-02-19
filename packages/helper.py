@@ -15,13 +15,18 @@ class Helper:
         self.hcLog = hcLog
 
     # implements whs 5.4
-    def updateHandicapIndex(self, game:dict, gameDate: datetime| str):
+    def updateHandicapIndex(self, game:dict, gameDate: datetime| str, write: bool=True) -> dict:
         """
-        Calculates the updated HC and inserts it into the db
+        Calculates the updated HC and inserts it into the db.
+        You can turn write of you just want the current unofficial HC
 
         Args:
+        game (dict): The game that caused the update to be triggered
         gameDate (datetime): Date on which the game that triggered the update was caused
-        help (Helper): The helper from main with the references to the tables
+        write (bool): By default true modifies whether you write the new handicap or not
+
+        Return:
+        dict: The handicaps as a dict
         """
         gameDate = gameDate if isinstance(gameDate, (date, datetime)) else datetime.fromisoformat(gameDate)
 
@@ -39,7 +44,16 @@ class Helper:
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap, course)
 
         # +1 day since the update is issued one day later
-        self.hcLog.insert({ "whs": whsHC, "ega": egaHC, "date": (gameDate + timedelta(days=1)) })
+        data = { "whs": whsHC, "ega": egaHC, "date": gameDate + timedelta(days=1) }
+        
+        # remove current HC if it is from the same day
+        HC = Query()
+        self.hcLog.remove(HC.date.test(lambda d: datetime.fromisoformat(d).date() == (gameDate + timedelta(days=1)).date()))
+
+        if write:
+            self.hcLog.insert(data)
+        
+        return data
 
 
     def insertFromDir(self, table: TinyDB, path: str) -> None:
@@ -106,7 +120,7 @@ class Helper:
 
         Returns: str: the uuid in hex format
         """
-        #TODO check course, pcc,
+        #TODO check course, pcc, for value error
 
 
         id = uuid.uuid4().hex
@@ -223,31 +237,3 @@ class Helper:
             result.extend(data)  # Extend the result list with the search results
 
         return result
-
-
-    def cronHCCalc(self, write: bool=True) -> None:
-        """
-        Calculates the new handicap if the current date and the date of one of the games in the cron table differ.
-        Optionally you can just get the value by setting write=false
-
-        Args:
-        write (bool): By default true modifies whether you write the new handicap or not
-        cronTable (TinyDB): allows you to change the default table, should not be needed
-        gamesTable (TinyDB): allows you to change the default table, should not be needed
-        """
-        Game = Query()
-        ids = self.cron.all()
-        games = self.games.search(Game.game_id.one_of(ids))
-        games = sorted(games, key=lambda x: datetime.fromisoformat(x['date']))
-
-        now = datetime.now()
-        for game in games:
-            gameDate =  datetime.fromisoformat(game["date"])
-            if now.date() != gameDate.date():
-                egaHC = ega.calculateNewHandicap() # TODO
-                whsHC = whs.handicap(self.getLastGames())
-                if write:
-                    self.hcLog.insert({ "ega": egaHC, "whs": whsHC, "date": now })
-
-
-

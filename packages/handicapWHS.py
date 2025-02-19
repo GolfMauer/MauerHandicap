@@ -155,7 +155,6 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 else:
                     shots[i] = adjustedPar[i] + 2
     else:
-        # TODO discuss if it is truly the same way in EGA and WHS
         adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
@@ -184,6 +183,3 @@ def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     playingHandicap = courseHandicap * handicapAllowance
 
     return round(playingHandicap)
-
-#TODO
-#5.4 and 5.7 - 5.9 but rely on cron jub would handle them on different branch

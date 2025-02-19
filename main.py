@@ -35,5 +35,9 @@ def HCCron() -> None:
     for doc in docs:
         docDate = datetime.fromisoformat(doc["date"])
         if (today - docDate).days >= 1:
-            help.updateHandicapIndex(doc, datetime.fromisoformat(doc["date"]))
+            help.updateHandicapIndex(doc, docDate)
+            
+            # remove stale objects
+            query = Query()
+            cron.remove(query.game_id == doc["game_id"])
             
