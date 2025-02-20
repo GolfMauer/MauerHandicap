@@ -1,7 +1,7 @@
 {
     "game_id": "koks",
-    "handicap": 36.0,
-    "handicap_net": 36.0,
+    "handicap": 0.0,
+    "handicap_net": 0.0,
     "stableford": 0.0,
     "courseID": "Womp Womp",
     "date": "2024-12-03T11:41:30.013870",
