@@ -22,17 +22,18 @@ def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
         stablefordScore += 18
     return min(54 - (stablefordScore - 36), 54)
 
-def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: dict) -> float:
+def calculateNewHandicap(game: dict, cba: int, course: dict) -> float:
     """
     Calculate the new handicap based on the game results, course conditions, and previous handicap.
     
     Args:
         game (dict): A dictionary containing game details, including shots taken.
         cba (int): The Computed Buffer Adjustment (CBA) value.
-        previousHandicap (float): The player's previous handicap.
     Returns:
         float: The new calculated handicap.
     """
+    previousHandicap = game["handicap"]
+    
     # TODO: error for 9 hole with cat 1? -> no buffer zone given
     if previousHandicap is None:
         stableford = convertToStableford(game["shots"], course["par"])
