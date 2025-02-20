@@ -22,7 +22,7 @@ def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
         stablefordScore += 18
     return min(54 - (stablefordScore - 36), 54)
 
-def calculateNewHandicap(game: dict, cba: int, course: dict) -> float:
+def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: dict) -> float:
     """
     Calculate the new handicap based on the game results, course conditions, and previous handicap.
     
@@ -32,7 +32,6 @@ def calculateNewHandicap(game: dict, cba: int, course: dict) -> float:
     Returns:
         float: The new calculated handicap.
     """
-    previousHandicap = game["handicap"]
     
     # TODO: error for 9 hole with cat 1? -> no buffer zone given
     if previousHandicap is None:
@@ -45,17 +44,23 @@ def calculateNewHandicap(game: dict, cba: int, course: dict) -> float:
     # assigning handicap strokes
     par = course["par"]
     strokeIndex = course["handicap_stroke_index"]
-    
-    # strokes <= holes
 
-    for i in range(len(strokeIndex)):
-        if handicapStrokes <= len(par):
-            if handicapStrokes == 0:
-                break
-            for i in range(handicapStrokes):
+    everyHole = ganzzahligeDivision(handicapStrokes, 9*((not game["is9Hole"])+1))
+    if handicapStrokes > 0:    
+        rem = handicapStrokes - (everyHole * (9*((not game["is9Hole"])+1)))
+        for i in range(len(strokeIndex)):
+            par[strokeIndex[i]-1] += everyHole
+            if rem > 0:
                 par[strokeIndex[i]-1] += 1
-            break
-        par[strokeIndex[i]-1] += 1 + (handicapStrokes-1) // 9*((not game["is9Hole"])+1) # absolutely bonkers math going on here
+                rem -= 1
+    else:
+        rem = handicapStrokes + (everyHole * (9*((not game["is9Hole"])+1)))
+        for i in range(len(strokeIndex)):
+            par[strokeIndex[i]-1] += everyHole
+            if rem < 0:
+                par[strokeIndex[i]-1] -= 1
+                rem += 1
+        pass
     
     stableford = convertToStableford(game["shots"], par)
     
@@ -66,6 +71,13 @@ def calculateNewHandicap(game: dict, cba: int, course: dict) -> float:
     adjustment = calculateAdjustment(stableford, previousHandicap, cba, game["is9Hole"])
 
     return previousHandicap + adjustment
+
+def ganzzahligeDivision(dividend: float, divisor: float) -> float:
+    if dividend < 0:
+        dividend *= -1
+        return -(dividend // divisor) 
+    return dividend // divisor
+
 
 # implements 3.10
 def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
