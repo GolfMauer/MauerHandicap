@@ -1,5 +1,7 @@
 import pytest
 import handicapEGA as hc
+import json
+import pathlib
 
 def test_handicapToCategory():
     assert hc.handicapToCategory(4.0) == 1
@@ -14,7 +16,6 @@ def test_handicapToCategory():
     assert hc.handicapToCategory(36.0) == 5
     assert hc.handicapToCategory(37.0) == 6
     assert hc.handicapToCategory(54.0) == 6
-    assert hc.handicapToCategory(55.0) is not None #TODO: error logic
 
 def test_initialHandicap():
     assert hc.initialHandicap(36, False) == 54
@@ -50,10 +51,7 @@ def test_calculateAdjustment():
     assert hc.calculateAdjustment(37, 37.0, 0, False) == pytest.approx(-1.0)
     assert hc.calculateAdjustment(38, 37.0, 0, False) == pytest.approx(-1.5)
     assert hc.calculateAdjustment(56, 37.0, 0, False) == pytest.approx(-10.5)
-    assert hc.calculateAdjustment(77, 37.0, 0, False) == pytest.approx(-18.9) # walks through cat 6 to cat 3
-    #TODO: continue for more cats?
-    
-    # taken from ega rules
+    assert hc.calculateAdjustment(77, 37.0, 0, False) == pytest.approx(-18.9)
     # this one seems wrong. don't know why
     # assert hc.calculateAdjustment(32, 11.2, 0, False) == pytest.approx(0.1)
     assert hc.calculateAdjustment(42, 11.3, 0, False) == pytest.approx(-1.2)
@@ -63,17 +61,43 @@ def test_playingHandicap():
     assert hc.playingHandicap(False, 20.0, 70.0, 113, 70) == 20.0
     assert hc.playingHandicap(False, 25.0, 71.2, 115, 72) == 25.0
     assert hc.playingHandicap(False, 37.0, 80.0, 100, 64) == 49.0
-    # TODO: test 9 Hole
+    assert hc.playingHandicap(True, 11.8, 35.8, 122, 35) == 7.0     # Example from EGA rulebook p.24
+    assert hc.playingHandicap(True, 40.0, 35.8, 122, 35) == 22.0
     
 def test_playingHandicapDifferential():
-    #TODO: this kinda needs for playingHandicap to work properly
-    pass
+    assert hc.playingHandicapDifferential(False, 70.6, 124, 72) == 2
+    assert hc.playingHandicapDifferential(False, 68.5, 120, 72) == -1
+    assert hc.playingHandicapDifferential(False, 74.4, 133, 72) == 9
+    assert hc.playingHandicapDifferential(False, 71.8, 125, 72) == 4
 
 def test_convertToStableford():
     assert hc.convertToStableford([2,2,2,2,2,2,2], [2,2,2,2,2,2,2]) == 14
     assert hc.convertToStableford([2,2,2,2,2,2,2], [0,0,0,0,0,0,0]) == 0
     assert hc.convertToStableford([1,1,2,2,3,3,4], [2,2,2,2,2,2,2]) == 12
     
-def test_calculateNewHandicap():
-    # TODO: too lazy rn
-    pass
+
+@pytest.fixture
+def game1():
+    file = pathlib.Path("test/games/game_1.json")
+    with file.open() as file:
+        data = json.load(file)
+    return data
+
+@pytest.fixture
+def game2():
+    file = pathlib.Path("test/games/game_2.json")
+    with file.open() as file:
+        data = json.load(file)
+    return data
+
+@pytest.fixture
+def course1():
+    file = pathlib.Path("test/courses/course_1.json")
+    with file.open() as file:
+        data = json.load(file)
+    return data
+
+
+def test_calculateNewHandicap(game1, game2, course1):
+    # only test for now because it is a pain in the ASS
+    assert hc.calculateNewHandicap(game2, 0, 54.0, course1) == 32.0
