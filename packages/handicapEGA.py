@@ -154,7 +154,7 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     raw = 0
     if category > 1 and category < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
-    if category is 6:
+    if category == 6:
         raw = handicap / 2 + playingHandicapDifferential(True, courseRating, slopeRating, par)
     
     return int(roundHalfUp(raw))
@@ -251,14 +251,14 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
     """
     adjustment = 0
     category = handicapToCategory(handicap)
-    if category is 6:
+    if category == 6:
         cba = 0 # cba does not apply to cat 6
 
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
         for _ in range(stablefordScore - (BUFFER_UPPER_LIMIT + cba)):
             category = handicapToCategory(handicap + adjustment)
             single = category / 10
-            if category is 6:
+            if category == 6:
                 single = 1
             adjustment -= single
         return adjustment
@@ -267,10 +267,10 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
     if stablefordScore < lower + cba:
         # cannot go back to cat 6
         for _ in range(stablefordScore - lower):
-            if handicapToCategory(handicap + adjustment) is 6:
+            if handicapToCategory(handicap + adjustment) == 6:
                 if adjustment > 0 :
                     return adjustment - BELOW_BUFFER_ADD
                 return adjustment
-            adjustment += BELOW_BUFFER_ADD    
+            adjustment += BELOW_BUFFER_ADD
 
     return adjustment
