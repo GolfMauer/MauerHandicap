@@ -151,6 +151,7 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     """
     category = handicapToCategory(handicap)
     # implements p22 3.9.4a
+    raw = 0
     if category > 1 and category < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
     if category is 6:
