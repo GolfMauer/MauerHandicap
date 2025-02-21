@@ -1,5 +1,5 @@
 import pytest
-import packages.handicapWHS as handicapWHS
+from packages import handicapWHS
 
 from mauerDB import MauerDB
 from datetime import datetime, timedelta
