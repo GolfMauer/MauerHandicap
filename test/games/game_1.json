@@ -1,12 +1,10 @@
 {
     "game_id": "koks",
-    "handicap": 0.0,
-    "handicap_net": 0.0,
-    "stableford": 0.0,
+    "handicap_differential": 0.0,
     "courseID": "Womp Womp",
     "date": "2024-12-03T11:41:30.013870",
     "shots": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5],
     "pcc" : 0.0,
-    "is9Hole": false
+    "is9Hole": false,
+    "handicap_allowance": 1
 }
-
