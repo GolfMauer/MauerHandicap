@@ -45,11 +45,19 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     par = course["par"]
     strokeIndex = course["handicap_stroke_index"]
     
-    modifier = 18 if game["is9hole"] else 9
+    modifier = 9 if game["is9Hole"] else 18
 
     everyHole = ganzzahligeDivision(handicapStrokes, modifier)
     
     mod = 1 if handicapStrokes > 0 else -1
+
+    # this creates tuples from the stroke index and a list from 1 to 9
+    # and sorts based on the first number (original stroke index), which
+    # creates a new stroke index with the same order using numbers 1-9
+    if game["is9Hole"]:
+        sorted_tuples = sorted(zip(strokeIndex, list(range(1,10))))
+        for i, (_, new_index) in enumerate(sorted_tuples):
+            strokeIndex[i] = new_index
 
     rem = handicapStrokes - mod*(everyHole * modifier)
     for i, index in enumerate(strokeIndex):

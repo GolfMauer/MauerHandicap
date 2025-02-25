@@ -72,80 +72,40 @@ def test_convertToStableford():
     assert hc.convertToStableford([2,2,2,2,2,2,2], [2,2,2,2,2,2,2]) == 14
     assert hc.convertToStableford([2,2,2,2,2,2,2], [0,0,0,0,0,0,0]) == 0
     assert hc.convertToStableford([1,1,2,2,3,3,4], [2,2,2,2,2,2,2]) == 12
+
+@pytest.fixture
+def games():
+    files = list(pathlib.Path("test").glob("Runde*.json"))
+    runden = dict()
+    for file in files:
+        with file.open() as file:
+            data = json.load(file)
+        runden[data["game_id"]] = data
+    return runden
+
+@pytest.fixture
+def courses():
+    files = list(pathlib.Path("test").glob("Kurs*.json"))
+    kurse = dict()
+    for file in files:
+        with file.open() as file:
+            data = json.load(file)
+        kurse[data["courseID"]] = data
+    return kurse
+
+@pytest.fixture
+def handicap_before():
+    # just 7 for now because this is only ega data
+    return [54, 37, 32.5, 27.5, 27.5, 23.7, 23.7]
+
+@pytest.fixture
+def handicap_after():
+    return [37, 32.5, 27.5, 27.5, 23.7, 23.7, 23.8]
     
-
-@pytest.fixture
-def game1():
-    file = pathlib.Path("test/games/game_1.json")
-    with file.open() as file:
-        data = json.load(file)
-    return data
-
-@pytest.fixture
-def game2():
-    file = pathlib.Path("test/games/game_2.json")
-    with file.open() as file:
-        data = json.load(file)
-    return data
-
-@pytest.fixture
-def course1():
-    file = pathlib.Path("test/courses/course_1.json")
-    with file.open() as file:
-        data = json.load(file)
-    return data
-
-@pytest.fixture
-def lade1():
-    return {
-            "shots": [5,6,8,7,6,6,6,6,6,7,6,6,5,6,6,6,5,6],
-            "is9Hole": False
-    }
-
-@pytest.fixture
-def course_lade1():
-    return {
-        "par": [3,4,4,5,4,4,3,4,4,5,4,4,3,4,4,5,4,4],
-        "handicap_stroke_index": [4,16,1,10,7,13,5,17,2,11,8,14,6,18,3,12,9,15],
-        "course_rating": 70.9,
-        "slope_rating": 115
-    }
-    
-@pytest.fixture
-def lade2():
-    return {
-            "shots": [4,5,5,6,6,5,6,9,5,5,6,6,5,6,6,6,5,6],
-            "is9Hole": False
-    }
-
-@pytest.fixture
-def course_lade3():
-    return {
-        "par": [3,4,4,5,4,4,3,4,4,5,4,4,3,4,4,5,4,4],
-        "handicap_stroke_index": [16,1,10,7,13,4,17,2,11,8,14,5,18,3,12,9,15,6],
-        "course_rating": 72.3,
-        "slope_rating": 130
-    }
-    
-@pytest.fixture
-def lade3():
-    return {
-            "shots": [4,5,5,6,6,7,4,8,4,5,6,6,5,6,6,6,5,6],
-            "is9Hole": False
-    }
-    
-@pytest.fixture
-def lade4():
-    return {
-            "shots": [5,6,6,7,6,6,4,7,6,7,6,6,5,5,6,6,5,6],
-            "is9Hole": False
-    }
-
-def test_calculateNewHandicap(game1, game2, course1, lade1, course_lade1, lade2, lade3, course_lade3, lade4):
-    # own test, painstakingly hand-calculated
-    assert hc.calculateNewHandicap(game2, 0, 54.0, course1) == 32.0
-    # lade-examples
-    assert hc.calculateNewHandicap(lade1, 0, 54.0, course_lade1) == 37.0
-    assert hc.calculateNewHandicap(lade2, 0, 37.0, course_lade1) == 32.5
-    assert hc.calculateNewHandicap(lade3, 0, 32.5, course_lade3) == 27.5
-    assert hc.calculateNewHandicap(lade4, 0, 27.5, course_lade3) == 27.5
+def test_calculateNewHandicap(games, courses, handicap_before, handicap_after):
+    # this is just to ensure oder of game 1 to 12 since it would sort as game 1, 10, 11, 12, 2, 3 ...
+    # oh but we only have data for 7 games so it doesn't matter lol
+    # leaving this in in case we get ega data for the other games
+    rundenliste = ["Runde " + str(i+1) for i in range(7)]
+    for i, runde in enumerate(rundenliste):
+        assert hc.calculateNewHandicap(games[runde], int(games[runde]["pcc"]), handicap_before[i], courses[games[runde]["courseID"]]) == handicap_after[i]

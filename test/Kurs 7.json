@@ -2,5 +2,6 @@
     "courseID": "Runde 7",
     "course_rating": 34.1,
     "slope_rating": 115,
-    "par": [3, 4, 4, 5, 4, 4, 3, 4, 4]
+    "par": [3, 4, 4, 5, 4, 4, 3, 4, 4],
+    "handicap_stroke_index": [4,16,1,10,7,13,5,17,2]
 }
