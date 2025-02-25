@@ -48,21 +48,15 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     modifier = 18 if game["is9hole"] else 9
 
     everyHole = ganzzahligeDivision(handicapStrokes, modifier)
-    if handicapStrokes > 0:    
-        rem = handicapStrokes - (everyHole * modifier)
-        for i in range(len(strokeIndex)):
-            par[strokeIndex[i]-1] += everyHole
-            if rem > 0:
-                par[strokeIndex[i]-1] += 1
-                rem -= 1
-    else:
-        rem = handicapStrokes + (everyHole * modifier)
-        for i in range(len(strokeIndex)):
-            par[strokeIndex[i]-1] += everyHole
-            if rem < 0:
-                par[strokeIndex[i]-1] -= 1
-                rem += 1
-        pass
+    
+    mod = 1 if handicapStrokes > 0 else -1
+
+    rem = handicapStrokes - mod*(everyHole * modifier)
+    for i, index in enumerate(strokeIndex):
+        par[index-1] += everyHole
+        if rem > 0:
+            par[index-1] += mod
+            rem -= mod
     
     stableford = convertToStableford(game["shots"], par)
     
