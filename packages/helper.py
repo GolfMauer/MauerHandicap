@@ -134,7 +134,6 @@ class Helper:
                 "is9hole": nineHole
             }
         
-        # TODO see if patrick has to do anything in here
         course = self.getCourses([game], self.courses)
         game = whs.handicapDifferential(game, course, self.getHCLog(m=0))
         
