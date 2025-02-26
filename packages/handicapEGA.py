@@ -29,10 +29,10 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     Args:
         game (dict): A dictionary containing game details, including shots taken.
         cba (int): The Computed Buffer Adjustment (CBA) value.
-        previousHandicap (float): The player's previous handicap.
     Returns:
         float: The new calculated handicap.
     """
+    
     # TODO: error for 9 hole with cat 1? -> no buffer zone given
     if previousHandicap is None:
         stableford = convertToStableford(game["shots"], course["par"])
@@ -50,21 +50,42 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     if game["is9Hole"]:
         stableford += 18
 
-    adjustment = calculateAdjustment(stableford, previousHandicap, cba)
+    adjustment = calculateAdjustment(stableford, previousHandicap, cba, game["is9Hole"])
 
     return previousHandicap + adjustment
 
-def spreadPlayingHC(course: dict, strokes: int, nineHole: bool) -> list[int]:
-    """
-    
-    """
+def ganzzahligeDivision(dividend: float, divisor: float) -> float:
+    if dividend < 0:
+        dividend *= -1
+        return -(dividend // divisor) 
+    return dividend // divisor
+
+def spreadPlayingHC(course: dict, handicapStrokes: int, is9Hole: bool) -> list:
     par = course["par"]
-    strokeIndex = course["strokeIndex"]
+    strokeIndex = course["handicap_stroke_index"]
     
-    for i in range(len(strokeIndex)):
-        if i+1 < strokes:
-            pass
-        par[strokeIndex[i]-1] += 1 + (strokes-1) // 9*((not nineHole)+1) # absolutely bonkers math going on here
+    holecount_modifier = 9 if is9Hole else 18
+
+    everyHole = ganzzahligeDivision(handicapStrokes, holecount_modifier)
+    
+    hc_stroke_modifier = 1 if handicapStrokes > 0 else -1
+
+    # this creates tuples from the stroke index and a list from 1 to 9
+    # and sorts based on the first number (original stroke index), which
+    # creates a new stroke index with the same order using numbers 1-9
+    if is9Hole:
+        sorted_tuples = sorted(zip(strokeIndex, list(range(1,10))))
+        for i, (_, new_index) in enumerate(sorted_tuples):
+            strokeIndex[i] = new_index
+
+    rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
+    for i, index in enumerate(strokeIndex):
+        par[index-1] += everyHole
+        if rem > 0:
+            par[index-1] += hc_stroke_modifier
+            rem -= hc_stroke_modifier
+    
+    return par
 
 # implements 3.10
 def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
@@ -138,9 +159,10 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
     """
     category = handicapToCategory(handicap)
     # implements p22 3.9.4a
+    raw = 0
     if category > 1 and category < 6:
         raw = (handicap * (slopeRating / 113)) / 2 + (courseRating - par)
-    if category is 6:
+    if category == 6:
         raw = handicap / 2 + playingHandicapDifferential(True, courseRating, slopeRating, par)
     
     return int(roundHalfUp(raw))
@@ -148,6 +170,7 @@ def playingHandicap9(handicap: float, courseRating: float, slopeRating: float, p
 def playingHandicap(is9Hole: bool, handicap: float, courseRating: float, slopeRating: float, par: int) -> int:
     """
     Calculate the playing handicap for a golfer based on whether they are playing a 9-hole or 18-hole course.
+    The playing handicap describes the amount of strokes a player receivees on a given course for their handicap.
     
     Args:
         is9Hole (bool): True if the golfer is playing a 9-hole course, False if playing an 18-hole course.
@@ -222,8 +245,6 @@ def playingHandicapDifferential(nineHole: bool, courseRating: float, slopeRating
     else:
         return playingHandicap18(36.0, courseRating, slopeRating, par) - 36.0
 
-
-# implements p.25 3.12.5 & 3.12.6
 def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole: bool) -> float:
     """
     Calculates adjustment to handicap index.
@@ -238,14 +259,14 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
     """
     adjustment = 0
     category = handicapToCategory(handicap)
-    if category is 6:
+    if category == 6:
         cba = 0 # cba does not apply to cat 6
 
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
         for _ in range(stablefordScore - (BUFFER_UPPER_LIMIT + cba)):
             category = handicapToCategory(handicap + adjustment)
             single = category / 10
-            if category is 6:
+            if category == 6:
                 single = 1
             adjustment -= single
         return adjustment
@@ -253,11 +274,11 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
     lower = catToLowerBuffer(is9Hole, category)
     if stablefordScore < lower + cba:
         # cannot go back to cat 6
-        for _ in range(lower - stablefordScore):
-            if handicapToCategory(handicap + adjustment) is 6:
+        for _ in range(stablefordScore - lower):
+            if handicapToCategory(handicap + adjustment) == 6:
                 if adjustment > 0 :
                     return adjustment - BELOW_BUFFER_ADD
                 return adjustment
-            adjustment += BELOW_BUFFER_ADD    
+            adjustment += BELOW_BUFFER_ADD
 
     return adjustment
