@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 
 import pytest
-from mauerDB import MauerDB
+from packages.mauerDB import MauerDB
 
 
 # Fixture to set up and tear down the temporary database
