@@ -42,29 +42,7 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
 
     # implements p.24 3.9.7
     # assigning handicap strokes
-    par = course["par"]
-    strokeIndex = course["handicap_stroke_index"]
-    
-    holecount_modifier = 9 if game["is9Hole"] else 18
-
-    everyHole = ganzzahligeDivision(handicapStrokes, holecount_modifier)
-    
-    hc_stroke_modifier = 1 if handicapStrokes > 0 else -1
-
-    # this creates tuples from the stroke index and a list from 1 to 9
-    # and sorts based on the first number (original stroke index), which
-    # creates a new stroke index with the same order using numbers 1-9
-    if game["is9Hole"]:
-        sorted_tuples = sorted(zip(strokeIndex, list(range(1,10))))
-        for i, (_, new_index) in enumerate(sorted_tuples):
-            strokeIndex[i] = new_index
-
-    rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
-    for i, index in enumerate(strokeIndex):
-        par[index-1] += everyHole
-        if rem > 0:
-            par[index-1] += hc_stroke_modifier
-            rem -= hc_stroke_modifier
+    par = spreadPlayingHC(course, handicapStrokes, game["is9Hole"])
     
     stableford = convertToStableford(game["shots"], par)
     
@@ -82,6 +60,32 @@ def ganzzahligeDivision(dividend: float, divisor: float) -> float:
         return -(dividend // divisor) 
     return dividend // divisor
 
+def spreadPlayingHC(course: dict, handicapStrokes: int, is9Hole: bool) -> list:
+    par = course["par"]
+    strokeIndex = course["handicap_stroke_index"]
+    
+    holecount_modifier = 9 if is9Hole else 18
+
+    everyHole = ganzzahligeDivision(handicapStrokes, holecount_modifier)
+    
+    hc_stroke_modifier = 1 if handicapStrokes > 0 else -1
+
+    # this creates tuples from the stroke index and a list from 1 to 9
+    # and sorts based on the first number (original stroke index), which
+    # creates a new stroke index with the same order using numbers 1-9
+    if is9Hole:
+        sorted_tuples = sorted(zip(strokeIndex, list(range(1,10))))
+        for i, (_, new_index) in enumerate(sorted_tuples):
+            strokeIndex[i] = new_index
+
+    rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
+    for i, index in enumerate(strokeIndex):
+        par[index-1] += everyHole
+        if rem > 0:
+            par[index-1] += hc_stroke_modifier
+            rem -= hc_stroke_modifier
+    
+    return par
 
 # implements 3.10
 def convertToStableford(shots: list[int], adjustedPar: list[int]) -> int:
