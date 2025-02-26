@@ -39,8 +39,5 @@ The application will be tied together by the handicap packages (potential merge 
 - add tests
 - create accurate test games
 - consider multiple players
-- consider not all holes played
-- build packages
 - create ui
-- Soft- / Hardcap on handicap increase.
-- Research on how Python applications are created
+- fill in handicap_dif in lade games

@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 
 import pytest
-from mauerDB import MauerDB
+from packages.helper import Helper
 
 
 # Fixture to set up and tear down the temporary database
@@ -15,7 +15,7 @@ from mauerDB import MauerDB
 def temp_db():
     with TemporaryDirectory() as temp_dir:
         db_path = f"{temp_dir}/test_db.json"
-        db = MauerDB(db_path)
+        db = MauerDBs(db_path)
         yield db
         db.close()
 
@@ -139,33 +139,33 @@ def test_add_game_isoString(temp_db):
 
 
 def test_get_games_empty (temp_db):
-    result = temp_db.getGames()
+    result = temp_db.getLastGames()
     assert result == []
 
 
 def test_get_games_m_to_large (one_game):
-    result = one_game.getGames(0, 3)
+    result = one_game.getLastGames(0, 3)
     assert len(result) != 0 and len(result) < 3
 
 def test_get_games_n_to_large (one_game):
-    result = one_game.getGames(3, 4)
+    result = one_game.getLastGames(3, 4)
     assert result == []
 
 def test_get_games_n_equal_m (one_game):
-    result = one_game.getGames(0, 0)
+    result = one_game.getLastGames(0, 0)
     assert len(result) == 1
 
 
 def test_get_games_n_larger_m (multiple_games):
-    result = multiple_games.getGames(3, 0)
+    result = multiple_games.getLastGames(3, 0)
     assert len(result) == 1
 
 def test_get_games(multiple_games):
-    result = multiple_games.getGames()
+    result = multiple_games.getLastGames()
     assert len(result) == 20
 
 def test_get_games_sorted(multiple_games):
-    result = multiple_games.getGames()
+    result = multiple_games.getLastGames()
 
     sorted_games = sorted(
         result, 
@@ -175,6 +175,6 @@ def test_get_games_sorted(multiple_games):
     assert result == sorted_games
 
 def test_get_games_slicing(multiple_games):
-    result = multiple_games.getGames(3, 6)
-    games = multiple_games.getGames()
+    result = multiple_games.getLastGames(3, 6)
+    games = multiple_games.getLastGames()
     assert result == games[3:7]

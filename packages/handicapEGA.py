@@ -12,7 +12,7 @@ def initialHandicap(stablefordScore: int, nineHole: bool) -> float:
     Calculates handicap for a player based on their score and whether they played a nine-hole game.
 
     Args:
-        sblfd_score (int): The player's Stableford score.
+        stablefordScore (int): The player's Stableford score.
         nineHole (bool): True if the game was a nine-hole game, False otherwise.
 
     Returns:
