@@ -45,11 +45,11 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
     par = course["par"]
     strokeIndex = course["handicap_stroke_index"]
     
-    modifier = 9 if game["is9Hole"] else 18
+    holecount_modifier = 9 if game["is9Hole"] else 18
 
-    everyHole = ganzzahligeDivision(handicapStrokes, modifier)
+    everyHole = ganzzahligeDivision(handicapStrokes, holecount_modifier)
     
-    mod = 1 if handicapStrokes > 0 else -1
+    hc_stroke_modifier = 1 if handicapStrokes > 0 else -1
 
     # this creates tuples from the stroke index and a list from 1 to 9
     # and sorts based on the first number (original stroke index), which
@@ -59,12 +59,12 @@ def calculateNewHandicap(game: dict, cba: int, previousHandicap: float, course: 
         for i, (_, new_index) in enumerate(sorted_tuples):
             strokeIndex[i] = new_index
 
-    rem = handicapStrokes - mod*(everyHole * modifier)
+    rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
     for i, index in enumerate(strokeIndex):
         par[index-1] += everyHole
         if rem > 0:
-            par[index-1] += mod
-            rem -= mod
+            par[index-1] += hc_stroke_modifier
+            rem -= hc_stroke_modifier
     
     stableford = convertToStableford(game["shots"], par)
     
