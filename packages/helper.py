@@ -115,7 +115,14 @@ class Helper:
 
         Returns: str: the uuid in hex format
         """
-        #TODO check course, pcc, for value error
+        course = self.getCourses([game], self.courses)
+        if course == []:
+            raise KeyError(f"Could not find the course {courseID}. Check for typos or create it.")
+        
+        if not (-1 >= pcc <= 3):
+            raise ValueError(f"PCC can only be between -1 and +3. Given value was {pcc}")
+        if not (-2 >= cba <= 1):
+            raise ValueError(f"PCC can only be between -1 and +3. Given value was {pcc}")
 
         id = uuid.uuid4().hex
         game = { 
@@ -127,8 +134,7 @@ class Helper:
                 "cba": cba,
                 "is9hole": nineHole
             }
-        
-        course = self.getCourses([game], self.courses)
+
         game = whs.handicapDifferential(game, course, self.getHCLog(m=0))
         
         if game["exceptional_reduction"] != 0.0:

@@ -36,7 +36,5 @@ The application will be tied together by the handicap packages (potential merge 
 
 # TODO
 - add tests
-- create accurate test games
-- consider multiple players
 - create ui
 - fill in handicap_dif in lade games
