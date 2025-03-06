@@ -102,9 +102,9 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
         differential =(adjusted - course["course_rating"] + game["pcc"] ) * (113 / course["slopeRating"])
     # implements 5.1b and 2.2b
     elif len(game["shots"]) == 9:
-        # calculation according to https://www.reddit.com/r/golf/comments/1iolhhm/comment/mckr1ic/?context=3
+        # calculation according to https://serviceportal.dgv-intranet.de/regularien/whs-handicap-regeln/i22533_1_Handicap_Regeln_2024.cfm
         score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slopeRating"])
-        expectedScore = 0.52 * handicapIndex + 1.2
+        expectedScore = ((handicapIndex * 1.04) + 2.4) / 2
         differential = score + expectedScore
     else:
         raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game needs to have 9 or more played holes.")
