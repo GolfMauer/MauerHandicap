@@ -1,8 +1,23 @@
-#for ui only I guess nad calls the data and handicap packages
-from packages.mauerDB  import MauerDB
+from datetime import datetime
+from tinydb import Query, TinyDB
+from packages.helper  import Helper
+import os
 
-db = MauerDB("./db")
-gamesTable = db.table("games") # stores the games that were already calculated
-courseTable = db.table("courses") # stores the courses
-cronTable = db.table("cron") # stores the games that are not in the calculation yet TODO maybe inconvenient to have games split for browsing
-hcLogTable = db.table("hcLog") # stores the old HCs max one per day
+# Define the database directory and file path
+db_dir = "./db" #should maybe be changed to %APPDATA%
+db_path = os.path.join(db_dir, "db.json")
+
+# Ensure the directory exists
+os.makedirs(db_dir, exist_ok=True)
+
+# Initialize the database
+db = TinyDB(db_path)
+
+# Initialize tables
+games = db.table("games", cache_size=20) # stores the games that were already calculated
+courses = db.table("courses") # stores the courses
+hcLog = db.table("hcLog", cache_size=366) # stores the old HCs max one per day
+
+# creating instance of Helper and setting default tables
+help = Helper(games, courses, hcLog)
+            

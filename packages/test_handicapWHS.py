@@ -1,7 +1,7 @@
 import pytest
 import packages.handicapWHS as handicapWHS
 
-from mauerDB import MauerDB
+from packages.helper import MauerDB
 from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 import random

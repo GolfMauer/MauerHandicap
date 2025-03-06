@@ -4,7 +4,10 @@
     "courseID": "Rainbow Boulevard",
     "date": "2024-11-03T11:41:30.013870",
     "shots": [3, 4, 5, 5, 4, 5, 3, 5, 5, 3, 5, 5, 3, 5, 5, 3, 4, 5],
+    "exceptional_reduction": -2.0,
     "pcc" : -1.0,
-    "is9Hole": false
+    "cba" : -1.0,
+    "is9Hole": false,
+    "handicap_allowance": 0.5
 }
 
