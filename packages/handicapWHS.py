@@ -147,7 +147,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 shots[i] = par[i] + 5
     # implements 3.1b
     elif playingHandicap >= 54:
-        adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
+        adjustedPar = spreadPlayingHC(course, game["shots"], game["is9Hole"])
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
                 if adjustedPar[i] + 2 - shot >= 4:
@@ -156,6 +156,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                     shots[i] = adjustedPar[i] + 2
     else:
         adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
+
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
                 shots[i] = adjustedPar[i] + 2
@@ -175,7 +176,7 @@ def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     int: Rounded Playing Handicap
     """
     # implements 6.1a and implements 6.1b
-    modifier = 2 if game["is9hole"] else 1
+    modifier = 2 if game["is9Hole"] else 1
     courseHandicap = handicapIndex * course["slope_rating"] / 113 + modifier*(course["course_rating" - sum(course["par"])])
 
     # implements 6.2a

@@ -1,0 +1,11 @@
+{
+    "game_id": "Runde 3",
+    "handicap_dif": 0.0,
+    "handicap_net": 0.0,
+    "stableford": 0.0,
+    "courseID": "Runde 3",
+    "date": "2025-02-11T12:00:00.000000",
+    "shots": [4, 5, 5, 6, 6, 7, 4, 8, 4, 5, 6, 6, 5, 6, 6, 6, 5, 6],
+    "pcc": 0.0,
+    "is9Hole": false
+}
