@@ -24,7 +24,6 @@ To ensure efficient progress on our MAUER the folders are structured as follows:
 At the center of our application sits the great great MauerDB. Which will be split into 4 Tables:
 - games: stores the games that were already calculated
 - courses: stores the courses
-- cron: stores the games that are not in the calculation yet; could potentially be merged with games
 - hcLog: stores the old HCs max one per day
 
 To create a good user experience of the MAUER PyQt is used to design the UI (#TODO @rocco @simon @Jack)

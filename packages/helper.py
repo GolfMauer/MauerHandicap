@@ -8,14 +8,13 @@ import packages.handicapEGA as ega
 import uuid
 
 class Helper:
-    def __init__(self, games, courses, cron, hcLog):
+    def __init__(self, games, courses, hcLog):
         self.games = games
         self.courses = courses
-        self.cron = cron
         self.hcLog = hcLog
 
     # implements whs 5.4
-    def updateHandicapIndex(self, game:dict, gameDate: datetime| str, write: bool=True) -> dict:
+    def updateHandicapIndex(self, game:dict, gameDate: datetime| str) -> dict:
         """
         Calculates the updated HC and inserts it into the db.
         You can turn write of you just want the current unofficial HC
@@ -35,23 +34,19 @@ class Helper:
         course = self.getCourses(game["courseID"])[0]
 
         latestGames = self.getLastGames()
-        latestEntry = max(latestGames, key=lambda x: x['date'])
+        latestEntry = max(latestGames, key=lambda x: x["date"])
         hcLog = self.getHCLog(startDate=latestEntry["date"])
 
-        lowHandicap = min(hcLog, key=lambda x: x['date'])
+        lowHandicap = min(hcLog, key=lambda x: x["date"])
 
         whsHC = whs.handicap(latestGames, lowHandicap["whs"])
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap, course)
 
-        # +1 day since the update is issued one day later
-        data = { "whs": whsHC, "ega": egaHC, "date": gameDate + timedelta(days=1) }
+        data = { "whs": whsHC, "ega": egaHC, "date": gameDate }
         
         # remove current HC if it is from the same day
         HC = Query()
-        self.hcLog.remove(HC.date.test(lambda d: datetime.fromisoformat(d).date() == (gameDate + timedelta(days=1)).date()))
-
-        if write:
-            self.hcLog.insert(data)
+        self.hcLog.remove(HC.date.test(lambda d: datetime.fromisoformat(d).date() == gameDate))
         
         return data
 
@@ -122,7 +117,6 @@ class Helper:
         """
         #TODO check course, pcc, for value error
 
-
         id = uuid.uuid4().hex
         game = { 
                 "id": id, 
@@ -149,8 +143,8 @@ class Helper:
 
         self.games.insert(game)
 
-        # insert into cron for future calculation
-        self.cron.insert({ "game_id": id })
+        # insert into hcLog
+        self.updateHandicapIndex(game, gameDate)
 
         return id
 
@@ -203,7 +197,7 @@ class Helper:
         if startDate is None:
             startDate = datetime.now()
 
-        log = self.cron.all()
+        log = self.hcLog.all()
         log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
 
         data = [ doc for doc in log if n <= (startDate - datetime.fromisoformat(doc["date"])).days < m
