@@ -120,9 +120,9 @@ class Helper:
             raise KeyError(f"Could not find the course {courseID}. Check for typos or create it.")
         
         if not (-1 >= pcc <= 3):
-            raise ValueError(f"PCC can only be between -1 and +3. Given value was {pcc}")
+            raise ValueError(f"PCC can only be between -1 and +3. Given value was { pcc }")
         if not (-2 >= cba <= 1):
-            raise ValueError(f"PCC can only be between -1 and +3. Given value was {pcc}")
+            raise ValueError(f"CBA can only be between -2 and +1. Given value was { cba }")
 
         id = uuid.uuid4().hex
         game = { 
