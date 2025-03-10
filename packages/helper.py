@@ -6,6 +6,8 @@ from os.path import isfile, join
 import handicapWHS as whs
 import handicapEGA as ega
 import uuid
+from fpdf import FPDF
+import handicapEGA as ega
 
 class Helper:
     def __init__(self, games, courses, hcLog):
@@ -69,6 +71,7 @@ class Helper:
             table.insert(data)
 
     def addCourse(self, courseID: str, courseRating: int, slopeRating: int, par: list[int]) -> None:
+
         """
         Adds a new game to tinyDB.
 
@@ -234,6 +237,10 @@ class Helper:
 
         return data
 
+    def get_last_hci(self, is_whs: bool) -> float:
+        log = self.hcLog.all()
+        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
+        return log[0]["whs" if is_whs else "ega"]
 
     
     def getCourses(self, games: list[dict]) -> list[dict]:
@@ -256,3 +263,110 @@ class Helper:
             result.extend(data)  # Extend the result list with the search results
 
         return result
+
+    def export_scorecard(self, course: dict, is_whs: bool, filepath: str):
+        """Generates a Scorecard as PDF and outputs it to given filepath
+
+        Args:
+            course (dict): The Course being played on
+            hci (float): The Handicap Index of the player
+            pcc (int): PCC or CBA of the game
+            filepath (str): The location and filename the scorecard should be saved to
+        """
+        hci = self.get_last_hci(is_whs)
+        
+        # TODO: User story: zuletzt verwendete eingaben verwenden
+        data = prepare_table_data(course, hci)
+        # create pdf page
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Helvetica", style="B", size=22)
+        pdf.cell(text=f"Kurs: {course["courseID"]}")
+        pdf.ln(h=14)
+        pdf.set_font("Helvetica", size=14)
+
+        today = datetime.now().strftime("%x") # uses local date format
+        text=f"__**CR:** {course["course_rating"]}  **SR:** {course["slope_rating"]}  **PCC/CBA:** ____  **Datum:** {today}  **HCI:** {hci}  **Name:**__"
+        pdf.multi_cell(
+            w=pdf.get_string_width(text, markdown=True)+2, # I should define a padding var, but fuck this
+            text=text,
+            markdown=True,
+        )
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.line(x, y, pdf.w - pdf.r_margin, y)
+        pdf.ln()
+
+        with pdf.table() as table:
+            row = table.row()
+            for cell in ("Loch", "Par", "HCP", "Vorgabe", "Schläge"):
+                row.cell(cell)
+            for data_row in data:
+                row = table.row()
+                for cell in data_row:
+                    row.cell(cell)
+
+        pdf.output(filepath)
+        # TODO: irgendwas damit UI "ok" sagen kann
+
+    def get_all_courses(self) -> list[dict]:
+        return self.courses.all()
+
+def prepare_table_data(
+    course: dict, hci: float
+) -> list[tuple[str, str, str, str, str]]:
+    """Generates a tuple of tuples representing rows in the scorecard table
+
+    Args:
+        course (dict): The course played on
+        hci (float): The handicap of the player
+        pcc (int): PCC/CBA of the game
+
+    Returns:
+        tuple[tuple[str, str, str, str, str], ...]:
+        A tuple of tuples representing the rows of the table
+    """
+    par = course["par"].copy()
+    hc_strokes = ega.playingHandicap(
+        False, hci, course["course_rating"], course["slope_rating"], sum(course["par"])
+    )
+    strokes = ega.spreadPlayingHC(course, hc_strokes, False)
+    stroke_allocation = [
+        x - y for x, y in zip(strokes, par)
+    ]
+    # Hole#, Par, HCP, hcp-strokes, shots taken (empty)
+    rows = []
+    for i in range(0, 9):
+        row = tuple(
+            map(
+                str,
+                (
+                    i + 1,
+                    par[i],
+                    course["handicap_stroke_index"][i],
+                    "/" * stroke_allocation[i],
+                    "",
+                ),
+            )
+        )
+        rows.append(row)
+    rows.append(("OUT", str(sum(par[0:9])), "", "", ""))
+
+    for i in range(9, 18):
+        row = tuple(
+            map(
+                str,
+                (
+                    i + 1,
+                    par[i],
+                    course["handicap_stroke_index"][i],
+                    stroke_allocation[i] * "/",
+                    "",
+                ),
+            )
+        )
+        rows.append(row)
+    rows.append(("IN", str(sum(par[9:18])), "", "", ""))
+    rows.append(("GESAMT", str(sum(par)), "", "", ""))
+
+    return rows
