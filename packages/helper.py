@@ -3,8 +3,8 @@ import json
 from datetime import date, datetime, timedelta
 from os import listdir
 from os.path import isfile, join
-import packages.handicapWHS as whs
-import packages.handicapEGA as ega
+import handicapWHS as whs
+import handicapEGA as ega
 import uuid
 
 class Helper:
