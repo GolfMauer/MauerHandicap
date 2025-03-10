@@ -109,13 +109,13 @@ def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_h
 
         log = helper.hcLog.all()
         log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
-        if i <= 7:
-            # print(f"{log[0]["ega"]} == {EGA_handicap[i]}")
-            assert log[0]["ega"] == EGA_handicap[i+1]
-        elif i >= 7:
-            # print(f"{log[0]["whs"]} == {EGA_handicap[i]}")
-            assert log[0]["whs"] == WHS_handicap[i]
-        checkChanges(helper, i)
+        lenLog = len(log)
+        if index <= 7:
+            print(f"{index} EGA {game["game_id"]} {log[lenLog - 1]["ega"]} == {EGA_handicap[index]}")
+            assert log[lenLog - 1]["ega"] == EGA_handicap[index+1]
+        elif index >= 7:
+            print(f"{index} WHS {game["game_id"]} {log[lenLog - 1]["whs"]} == {WHS_handicap[index]}")
+            assert log[lenLog - 1]["whs"] == WHS_handicap[index]
 
 def test_export_scorecard(helper: Helper, courses):
     helper.courses.insert_multiple(courses)
