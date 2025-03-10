@@ -42,7 +42,7 @@ def games():
 
 @pytest.fixture
 def courses():
-    files = list(pathlib.Path("test").glob("Kurs*.json"))
+    files = list(pathlib.Path("test/courses").glob("course_*.json"))
     courses = list()
     for file in files:
         with file.open() as file:
@@ -111,3 +111,11 @@ def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_h
         gameDate = game["date"]
         helper.addGame(courseID, shots, nineHole, pcc, cba, gameDate)
         checkChanges(helper, i)
+
+def test_export_scorecard(helper: Helper, courses):
+    helper.courses.insert_multiple(courses)
+    helper.hcLog.insert({"whs": 40.1, "ega": 50.1, "date": datetime.now().isoformat()})
+    
+    helper.export_scorecard(helper.get_all_courses()[0], False, "/home/installadm/hochschule/NoCapHandicap/export.pdf")
+
+    # this won't assert anything for now lol
