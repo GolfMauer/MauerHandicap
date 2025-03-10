@@ -161,8 +161,9 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
             if shot > adjustedPar[i] + 2:
                 shots[i] = adjustedPar[i] + 2
 
+    return sum(shots)
 
-#
+
 def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     """
     calculates the Playing Handicap. By default it is equal to the course handicap
