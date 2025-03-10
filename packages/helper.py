@@ -27,26 +27,28 @@ class Helper:
         Return:
         dict: The handicaps as a dict
         """
-        gameDate = gameDate if isinstance(gameDate, (date, datetime)) else datetime.fromisoformat(gameDate)
+        gameDate = gameDate.isoformat() if isinstance(gameDate, (date, datetime)) else gameDate
 
         cba = game["cba"]
-        previousHandicap = self.getHCLog(m=0)
-        course = self.getCourses(game["courseID"])[0]
+        previousHandicap = self.getHCLog(m=0) if self.getHCLog(m=0) != [] else [{ "whs": 54, "ega": 54, "date": gameDate }]
+        course = self.getCourses([game])[0]
 
         latestGames = self.getLastGames()
         latestEntry = max(latestGames, key=lambda x: x["date"])
-        hcLog = self.getHCLog(startDate=latestEntry["date"])
+        hcLog = self.getHCLog(startDate=latestEntry["date"]) if self.getHCLog(startDate=latestEntry["date"]) != [] else [{ "whs": 54, "ega": 54, "date": gameDate }]
 
         lowHandicap = min(hcLog, key=lambda x: x["date"])
 
         whsHC = whs.handicap(latestGames, lowHandicap["whs"])
-        egaHC = ega.calculateNewHandicap(game, cba, previousHandicap, course)
+        egaHC = ega.calculateNewHandicap(game, cba, previousHandicap[0]["ega"], course)
 
         data = { "whs": whsHC, "ega": egaHC, "date": gameDate }
         
         # remove current HC if it is from the same day
         HC = Query()
-        self.hcLog.remove(HC.date.test(lambda d: datetime.fromisoformat(d).date() == gameDate))
+        self.hcLog.remove(HC.date.test(lambda d: datetime.fromisoformat(d).date() == datetime.fromisoformat(gameDate)))
+
+        self.hcLog.insert(data)
         
         return data
 
@@ -117,7 +119,7 @@ class Helper:
         """
         id = uuid.uuid4().hex
         game = { 
-                "id": id, 
+                "game_id": id, 
                 "courseID": courseID, 
                 "date": date.isoformat() if isinstance(gameDate, (date, datetime)) else gameDate, 
                 "shots": shots, 
@@ -145,7 +147,10 @@ class Helper:
         
         if game["exceptional_reduction"] != 0.0:
             Game = Query()
-            ids = [game["game_id"] for game in self.getLastGames(0, 18)]
+            print(self.getLastGames(0, 18))
+            lastGames = self.getLastGames(0, 18)
+
+            ids = [game["game_id"] for game in lastGames]
             self.games.update(
                 lambda doc: { # for each game tinyDB iterates over it hands the current doc to the lambda function
                     "exceptional_reduction": doc.get("exceptional_reduction", 0) + game["exceptional_reduction"]
@@ -233,7 +238,7 @@ class Helper:
         Returns:
         List[dict]: A list of courses played.
         """
-        unique_courses = [game["courseID"] for game in games] # Use a set for unique course IDs
+        unique_courses = {game["courseID"] for game in games} # Use a set for unique course IDs
         query = Query()
 
         result = []

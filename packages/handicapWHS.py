@@ -74,7 +74,7 @@ def capIncrease(handicap: float, games: list[dict], lowHandicap: float) -> float
     """
     dif = handicap - lowHandicap
     # apply soft cap
-    if dif > 3.0 < 5.0:
+    if 3.0 < dif < 5.0:
         handicap = handicap - 0.5*dif
     elif dif >= 5.0:
         handicap = lowHandicap["whs"] + 5.0
