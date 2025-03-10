@@ -99,11 +99,11 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
 
     # implements 5.1a and 2.2a
     if len(game["shots"]) > 9:
-        differential =(adjusted - course["course_rating"] + game["pcc"] ) * (113 / course["slopeRating"])
+        differential =(adjusted - course["course_rating"] + game["pcc"] ) * (113 / course["slope_rating"])
     # implements 5.1b and 2.2b
     elif len(game["shots"]) == 9:
         # calculation according to https://serviceportal.dgv-intranet.de/regularien/whs-handicap-regeln/i22533_1_Handicap_Regeln_2024.cfm
-        score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slopeRating"])
+        score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slope_rating"])
         expectedScore = ((handicapIndex * 1.04) + 2.4) / 2
         differential = score + expectedScore
     else:
@@ -155,7 +155,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 else:
                     shots[i] = adjustedPar[i] + 2
     else:
-        adjustedPar = spreadPlayingHC(course, game["shots"], game["is9hole"])
+        adjustedPar = spreadPlayingHC(course, game["shots"], game["is9Hole"])
 
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
@@ -178,7 +178,7 @@ def calcPlayingHandicap(game: dict, course: dict, handicapIndex: int) -> int:
     """
     # implements 6.1a and implements 6.1b
     modifier = 2 if game["is9Hole"] else 1
-    courseHandicap = handicapIndex * course["slope_rating"] / 113 + modifier*(course["course_rating" - sum(course["par"])])
+    courseHandicap = handicapIndex * course["slope_rating"] / 113 + modifier*(course["course_rating"] - sum(course["par"]))
 
     # implements 6.2a
     handicapAllowance = 1 if game["handicap_allowance"] is None else game["handicap_allowance"]

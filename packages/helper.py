@@ -98,7 +98,8 @@ class Helper:
                 nineHole: bool,
                 pcc: float=0 ,
                 cba: float=0,
-                gameDate: datetime | str=datetime.now()
+                gameDate: datetime | str=datetime.now(),
+                handicapAllowance: float = 1
                 ) -> str:
         """
         Adds a new game to tinyDB.
@@ -110,20 +111,10 @@ class Helper:
         pcc (float): The weather adjustment; by default 0
         cba (float): Buffer adjustment for EGA; by default 0
         gameDate (datetime| str): The date the game was played on; you can either pass the datetime object or the iso-string by default time.now()
-        table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary
-        courseTable (TinyDB): as this function does a query to tiny db, this allows you to change the default course table 
+        handicapAllowance (float): Percent value that goes into the gross score adjustment for whs. Default = 1
 
         Returns: str: the uuid in hex format
         """
-        course = self.getCourses([game], self.courses)
-        if course == []:
-            raise KeyError(f"Could not find the course {courseID}. Check for typos or create it.")
-        
-        if not (-1 >= pcc <= 3):
-            raise ValueError(f"PCC can only be between -1 and +3. Given value was { pcc }")
-        if not (-2 >= cba <= 1):
-            raise ValueError(f"CBA can only be between -2 and +1. Given value was { cba }")
-
         id = uuid.uuid4().hex
         game = { 
                 "id": id, 
@@ -132,10 +123,25 @@ class Helper:
                 "shots": shots, 
                 "pcc": pcc,
                 "cba": cba,
-                "is9hole": nineHole
+                "is9Hole": nineHole,
+                "handicap_allowance": handicapAllowance
             }
 
-        game = whs.handicapDifferential(game, course, self.getHCLog(m=0))
+        course = self.getCourses([game])
+        
+        if course == []:
+            raise KeyError(f"Could not find the course {courseID}. Check for typos or create it.")
+        
+        if not (-1 <= pcc <= 3):
+            raise ValueError(f"PCC can only be between -1 and +3. Given value was { pcc }")
+        elif not (-2 <= cba <= 1):
+            raise ValueError(f"CBA can only be between -2 and +1. Given value was { cba }")
+        elif not (0 <= handicapAllowance <=1):
+            raise ValueError(f"Handicap allowance can only be between 0 and one. Given value was { handicapAllowance }")
+        
+        hci = self.getHCLog(m=0)[0]["whs"] if self.getHCLog(m=0) != [] else 54
+        
+        game = whs.handicapDifferential(game, course[0], hci)
         
         if game["exceptional_reduction"] != 0.0:
             Game = Query()
@@ -227,7 +233,7 @@ class Helper:
         Returns:
         List[dict]: A list of courses played.
         """
-        unique_courses = {game["courseID"] for game in games}  # Use a set for unique course IDs
+        unique_courses = [game["courseID"] for game in games] # Use a set for unique course IDs
         query = Query()
 
         result = []
