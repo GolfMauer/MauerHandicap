@@ -42,7 +42,7 @@ class Helper:
         whsHC = whs.handicap(latestGames, lowHandicap["whs"])
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap[0]["ega"], course)
 
-        data = { "whs": whsHC, "ega": egaHC, "date": gameDate }
+        data = { "whs": round(whsHC, 1), "ega": round(egaHC, 1), "date": gameDate }
         
         # remove current HC if it is from the same day
         HC = Query()
@@ -147,7 +147,6 @@ class Helper:
         
         if game["exceptional_reduction"] != 0.0:
             Game = Query()
-            print(self.getLastGames(0, 18))
             lastGames = self.getLastGames(0, 18)
 
             ids = [game["game_id"] for game in lastGames]
@@ -199,8 +198,8 @@ class Helper:
     def getHCLog(self, n: int=0, m: int=365, startDate: datetime=None) -> list[dict]:
         """
         get n m(inclusive) HC Log data. By default set to n=0 and m=365 so last 365 days
-        E.g. you want the 15.03 - 15.06 the last update in the time frame was on
-        the 02.03. So you'll receive the data from 02.03 - 15.06
+        E.g. you want the data from the 09.01-07.02. The log looks like this [01.01, 01.02, 15.02, 01.03] you will receive [01.01, 01.02, 15.02].
+        Since form the 09.01-01.02 you still have the handicap Index that was added on the 01.01. Same reasoning for the 15.02.
         Optionally a different starting date than today can be set.
 
         Args:
@@ -214,15 +213,25 @@ class Helper:
         if startDate is None:
             startDate = datetime.now()
 
+        if isinstance(startDate, str):
+            startDate = datetime.fromisoformat(startDate)
+
         log = self.hcLog.all()
         log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
 
-        data = [ doc for doc in log if n <= (startDate - datetime.fromisoformat(doc["date"])).days < m
-        ]
+        data = [ doc for doc in log if n <= (startDate - datetime.fromisoformat(doc["date"])).days < m ]
 
+        # add first game spill over
+        if data != [] and (datetime.fromisoformat(data[0]["date"]) - startDate).days != 0:
+            for i, doc in enumerate(log):
+                if (datetime.fromisoformat(doc["date"]) - startDate).days == 0:
+                    data = log[i -1] + data
+                    break
+
+        # add last game spill over
         if len(data) < len(log):
             data.append(log[len(data) + n])
-        
+
         return data
 
 

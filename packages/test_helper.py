@@ -59,16 +59,15 @@ def score_differential():
 
 
 @pytest.fixture
-def WHS_handicap():
-    # only for game 7 to 12
-    return [ 29.3, 28.4 ,25.6 ,23.9 , 23.5, 23.5 ]
-
-
-@pytest.fixture
 def EGA_handicap():
     # just 7 for now because this is only ega data
     return [54, 37, 32.5, 27.5, 27.5, 23.7, 23.7, 23.8]
 
+
+@pytest.fixture
+def WHS_handicap():
+    # only for game 7 to 12
+    return [ 29.3, 28.4 ,25.6 ,23.9 , 23.5, 23.5 ]
 
 
 #fixture to insert 21 games
@@ -95,7 +94,7 @@ def multiple_games(helper: Helper):
 def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_handicap):
     helper.courses.insert_multiple(courses)
 
-    for i, game in enumerate(games):
+    for index, game in enumerate(games):
         courseID = game["courseID"]
         shots = game["shots"]
         nineHole = game["is9Hole"]
@@ -106,9 +105,10 @@ def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_h
 
         log = helper.hcLog.all()
         log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
-        if i <= 7:
-            # print(f"{log[0]["ega"]} == {EGA_handicap[i]}")
-            assert log[0]["ega"] == EGA_handicap[i+1]
-        elif i >= 7:
-            # print(f"{log[0]["whs"]} == {EGA_handicap[i]}")
-            assert log[0]["whs"] == WHS_handicap[i]
+        lenLog = len(log)
+        if index <= 7:
+            print(f"{index} EGA {game["game_id"]} {log[lenLog - 1]["ega"]} == {EGA_handicap[index]}")
+            assert log[lenLog - 1]["ega"] == EGA_handicap[index+1]
+        elif index >= 7:
+            print(f"{index} WHS {game["game_id"]} {log[lenLog - 1]["whs"]} == {WHS_handicap[index]}")
+            assert log[lenLog - 1]["whs"] == WHS_handicap[index]
