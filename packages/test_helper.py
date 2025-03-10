@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import pathlib
 import random
 import re
+import re
 from tempfile import TemporaryDirectory
 import json
 
@@ -34,6 +35,8 @@ def helper():
 def games():
     files = list(pathlib.Path("/home/hannes-piechulek/Documents/VS_Workspace/MauerHandicap/test/real_data/games/").glob("Runde*.json"))
     files.sort(key=lambda f: int(re.search(r'\d+', f.stem).group()))
+    files = list(pathlib.Path("/home/hannes-piechulek/Documents/VS_Workspace/MauerHandicap/test/real_data/games/").glob("Runde*.json"))
+    files.sort(key=lambda f: int(re.search(r'\d+', f.stem).group()))
     games = list()
     for file in files:
         with file.open() as file:
@@ -44,6 +47,7 @@ def games():
 
 @pytest.fixture
 def courses():
+    files = list(pathlib.Path("/home/hannes-piechulek/Documents/VS_Workspace/MauerHandicap/test/real_data/courses/").glob("Kurs*.json"))
     files = list(pathlib.Path("/home/hannes-piechulek/Documents/VS_Workspace/MauerHandicap/test/real_data/courses/").glob("Kurs*.json"))
     courses = list()
     for file in files:
@@ -102,6 +106,15 @@ def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_h
         cba = game["cba"]
         gameDate = game["date"]
         helper.addGame(courseID, shots, nineHole, pcc, cba, gameDate)
+
+        log = helper.hcLog.all()
+        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
+        if i <= 7:
+            # print(f"{log[0]["ega"]} == {EGA_handicap[i]}")
+            assert log[0]["ega"] == EGA_handicap[i+1]
+        elif i >= 7:
+            # print(f"{log[0]["whs"]} == {EGA_handicap[i]}")
+            assert log[0]["whs"] == WHS_handicap[i]
         checkChanges(helper, i)
 
 def test_export_scorecard(helper: Helper, courses):
