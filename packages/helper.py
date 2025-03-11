@@ -15,6 +15,7 @@ class Helper:
         self.games = games
         self.courses = courses
         self.hcLog = hcLog
+        self.last_cr_sr_hcp = None
 
     # implements whs 5.4
     def updateHandicapIndex(self, game: dict, gameDate: datetime | str) -> dict:
@@ -273,6 +274,8 @@ class Helper:
         filepath: str,
         cr_override: float | None = None,
         sr_override: int | None = None,
+        hcp_override: list[int] | None = None,
+        use_last_values: bool | None = None,
     ):
         """Generates a Scorecard as PDF and outputs it to given filepath
 
@@ -287,12 +290,28 @@ class Helper:
         # I don't trust that I won't accidentally be overwriting things
         # and I'm too lazy to copy these into their own variables
         course = course.copy()
+        
+        
         if cr_override is not None:
             course["course_rating"] = cr_override
+
         if sr_override is not None:
             course["slope_rating"] = sr_override
 
-        # TODO: User story: zuletzt verwendete eingaben verwenden
+        if hcp_override is not None:
+            course["handicap_stroke_index"] = hcp_override
+
+        if use_last_values:
+            course["course_rating"] = self.last_cr_sr_hcp["cr"]
+            course["slope_rating"] = self.last_cr_sr_hcp["sr"]
+            course["handicap_stroke_index"] = self.last_cr_sr_hcp["hcp"]
+
+        self.last_cr_sr_hcp = {
+            "cr": course["course_rating"],
+            "sr": course["slope_rating"],
+            "hcp": course["handicap_stroke_index"],
+        }
+
         data = prepare_table_data(course, hci)
         # create pdf page
         pdf = FPDF()
