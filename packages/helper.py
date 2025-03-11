@@ -9,6 +9,7 @@ import uuid
 from fpdf import FPDF
 import handicapEGA as ega
 
+
 class Helper:
     def __init__(self, games, courses, hcLog):
         self.games = games
@@ -16,7 +17,7 @@ class Helper:
         self.hcLog = hcLog
 
     # implements whs 5.4
-    def updateHandicapIndex(self, game:dict, gameDate: datetime| str) -> dict:
+    def updateHandicapIndex(self, game: dict, gameDate: datetime | str) -> dict:
         """
         Calculates the updated HC and inserts it into the db.
         You can turn write of you just want the current unofficial HC
@@ -54,7 +55,6 @@ class Helper:
         
         return data
 
-
     def insertFromDir(self, table: TinyDB, path: str) -> None:
         """
         Inserts all the files in the given directory into the given db/table
@@ -70,8 +70,9 @@ class Helper:
             data = json.load(json_file)
             table.insert(data)
 
-    def addCourse(self, courseID: str, courseRating: int, slopeRating: int, par: list[int]) -> None:
-
+    def addCourse(
+        self, courseID: str, courseRating: int, slopeRating: int, par: list[int]
+    ) -> None:
         """
         Adds a new game to tinyDB.
 
@@ -80,20 +81,21 @@ class Helper:
         courseRating (int): The difficulty rating of the course usually between 67 and 77. Should be the sum of the par's if I understand it correctly
         slopeRating (int): The difficulty rating of the course, between 55 and 155 with the average being 113
         par (list[int]): The shots that that are expected for each hole
-        table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary 
-        
+        table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary
+
         Returns:
         None
         """
-        
-
 
         if not (55 <= slopeRating <= 155):
-            raise ValueError(f"Invalid parameter: {slopeRating}. Must be between 55 and 155.")
-        data = {"course_id": courseID,
-                "course_rating": courseRating,
-                "slope_rating": slopeRating, 
-                "par": par
+            raise ValueError(
+                f"Invalid parameter: {slopeRating}. Must be between 55 and 155."
+            )
+        data = {
+            "course_id": courseID,
+            "course_rating": courseRating,
+            "slope_rating": slopeRating,
+            "par": par,
         }
         self.courses.insert(data)
 
@@ -120,6 +122,7 @@ class Helper:
 
         Returns: str: the uuid in hex format
         """
+
         id = uuid.uuid4().hex
         game = { 
                 "game_id": id, 
@@ -154,10 +157,11 @@ class Helper:
 
             ids = [game["game_id"] for game in lastGames]
             self.games.update(
-                lambda doc: { # for each game tinyDB iterates over it hands the current doc to the lambda function
-                    "exceptional_reduction": doc.get("exceptional_reduction", 0) + game["exceptional_reduction"]
+                lambda doc: {  # for each game tinyDB iterates over it hands the current doc to the lambda function
+                    "exceptional_reduction": doc.get("exceptional_reduction", 0)
+                    + game["exceptional_reduction"]
                 },
-                Game.game_id.one_of(ids)
+                Game.game_id.one_of(ids),
             )
 
         self.games.insert(game)
@@ -167,8 +171,7 @@ class Helper:
 
         return id
 
-
-    def getLastGames(self, n: int=0, m: int=19) -> list[dict]:
+    def getLastGames(self, n: int = 0, m: int = 19) -> list[dict]:
         """
         returns the last n to m (inclusive) games, where n is the lowest index and m is the highest index.
         Defaults to the last 20 games or less if there are less than 20 games
@@ -180,25 +183,25 @@ class Helper:
         Returns:
         List[dict]: A list of games between the indices.
         """
-        
+
         games = self.games.all()
 
         if not games:
             return []
-    
+
         sorted_games = sorted(
-            games, 
-            key=lambda x: datetime.fromisoformat(x['date']), 
-            reverse=True)
-        
+            games, key=lambda x: datetime.fromisoformat(x["date"]), reverse=True
+        )
+
         # Validate and adjust indices
         n = max(0, n)  # Ensure n is non-negative
         m = min(len(sorted_games) - 1, max(n, m))  # Ensure m is within bounds and >= n
 
-        return sorted_games[n:m + 1]
-    
+        return sorted_games[n : m + 1]
 
-    def getHCLog(self, n: int=0, m: int=365, startDate: datetime=None) -> list[dict]:
+    def getHCLog(
+        self, n: int = 0, m: int = 365, startDate: datetime = None
+    ) -> list[dict]:
         """
         get n m(inclusive) HC Log data. By default set to n=0 and m=365 so last 365 days
         E.g. you want the data from the 09.01-07.02. The log looks like this [01.01, 01.02, 15.02, 01.03] you will receive [01.01, 01.02, 15.02].
@@ -242,14 +245,13 @@ class Helper:
         log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
         return log[0]["whs" if is_whs else "ega"]
 
-    
     def getCourses(self, games: list[dict]) -> list[dict]:
         """
         returns the courses played given n games
 
         Args:
         games (list[dict]): The games relevant for the query
-        table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary 
+        table (TinyDB): By default is set to courses table but can be changed by passing the reference. This should not be necessary
 
         Returns:
         List[dict]: A list of courses played.
@@ -264,7 +266,14 @@ class Helper:
 
         return result
 
-    def export_scorecard(self, course: dict, is_whs: bool, filepath: str):
+    def export_scorecard(
+        self,
+        course: dict,
+        is_whs: bool,
+        filepath: str,
+        cr_override: float | None = None,
+        sr_override: int | None = None,
+    ):
         """Generates a Scorecard as PDF and outputs it to given filepath
 
         Args:
@@ -274,7 +283,15 @@ class Helper:
             filepath (str): The location and filename the scorecard should be saved to
         """
         hci = self.get_last_hci(is_whs)
-        
+
+        # I don't trust that I won't accidentally be overwriting things
+        # and I'm too lazy to copy these into their own variables
+        course = course.copy()
+        if cr_override is not None:
+            course["course_rating"] = cr_override
+        if sr_override is not None:
+            course["slope_rating"] = sr_override
+
         # TODO: User story: zuletzt verwendete eingaben verwenden
         data = prepare_table_data(course, hci)
         # create pdf page
@@ -285,10 +302,10 @@ class Helper:
         pdf.ln(h=14)
         pdf.set_font("Helvetica", size=14)
 
-        today = datetime.now().strftime("%x") # uses local date format
-        text=f"__**CR:** {course["course_rating"]}  **SR:** {course["slope_rating"]}  **PCC/CBA:** ____  **Datum:** {today}  **HCI:** {hci}  **Name:**__"
+        today = datetime.now().strftime("%x")  # uses local date format
+        text = f"__**CR:** {course["course_rating"]}  **SR:** {course["slope_rating"]}  **PCC/CBA:** ____  **Datum:** {today}  **HCI:** {hci}  **Name:**__"
         pdf.multi_cell(
-            w=pdf.get_string_width(text, markdown=True)+2, # I should define a padding var, but fuck this
+            w=pdf.get_string_width(text, markdown=True) + 2,
             text=text,
             markdown=True,
         )
@@ -297,7 +314,7 @@ class Helper:
         pdf.line(x, y, pdf.w - pdf.r_margin, y)
         pdf.ln()
 
-        with pdf.table() as table:
+        with pdf.table(col_widths=(3, 3, 3, 3, 5)) as table:
             row = table.row()
             for cell in ("Loch", "Par", "HCP", "Vorgabe", "Schläge"):
                 row.cell(cell)
@@ -307,10 +324,15 @@ class Helper:
                     row.cell(cell)
 
         pdf.output(filepath)
-        # TODO: irgendwas damit UI "ok" sagen kann
 
     def get_all_courses(self) -> list[dict]:
+        """Returns a list of dictionaries describing all courses saved.
+
+        Returns:
+            list[dict]: A list of courses.
+        """
         return self.courses.all()
+
 
 def prepare_table_data(
     course: dict, hci: float
@@ -331,9 +353,7 @@ def prepare_table_data(
         False, hci, course["course_rating"], course["slope_rating"], sum(course["par"])
     )
     strokes = ega.spreadPlayingHC(course, hc_strokes, False)
-    stroke_allocation = [
-        x - y for x, y in zip(strokes, par)
-    ]
+    stroke_allocation = [x - y for x, y in zip(strokes, par)]
     # Hole#, Par, HCP, hcp-strokes, shots taken (empty)
     rows = []
     for i in range(0, 9):

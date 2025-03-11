@@ -1,7 +1,7 @@
-import pytest
-import handicapEGA as hc
 import json
 import pathlib
+import pytest
+import handicapEGA as hc
 
 def test_handicapToCategory():
     assert hc.handicapToCategory(4.0) == 1
