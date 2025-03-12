@@ -1,7 +1,7 @@
 import sys
 import matplotlib
 matplotlib.use('Qt5Agg')
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from datetime import datetime
@@ -10,8 +10,10 @@ class NeuesSpielDialog(QtWidgets.QDialog):
     def __init__(self, kurse):
         super().__init__()
         self.setWindowTitle("Neues Spiel")
-
         layout = QtWidgets.QVBoxLayout()
+
+        self.setWhatsThis("Dieser Dialog ermöglicht es dir, ein neues Spiel zu starten. "
+                          "Wähle den Kurs, die Anzahl der Löcher und gib die Schlagzahlen ein.")
 
         self.kurs_combo = QtWidgets.QComboBox()
         self.kurs_combo.addItems(kurse)
@@ -83,7 +85,8 @@ class NeuerKursDialog(QtWidgets.QDialog):
         self.setWindowTitle("Neuer Kurs")
 
         layout = QtWidgets.QVBoxLayout()
-
+        self.setWhatsThis("Dieser Dialog ermöglicht es dir, ein neuen kurs einzutragen. "
+                          "Wähle den Kurs, das kurs Rating, das Slope Rating, die Anzahl der Löcher und gib die Par Schlagzahlen ein.")
         self.kurs_name_eingabe = QtWidgets.QLineEdit()
         layout.addWidget(QtWidgets.QLabel("Kursname:"))
         layout.addWidget(self.kurs_name_eingabe)
@@ -160,6 +163,25 @@ class HandicapUI(QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle("Golf Handicap Rechner")
 
+         # Dark Mode Farbpalette
+        self.dark_palette = QtGui.QPalette()
+        self.dark_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
+        self.dark_palette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
+        self.dark_palette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
+        self.dark_palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(53, 53, 53))
+        self.dark_palette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
+        self.dark_palette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
+        self.dark_palette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
+        self.dark_palette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
+        self.dark_palette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
+        self.dark_palette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
+        self.dark_palette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
+        self.dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
+        self.dark_palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
+        self.setPalette(self.dark_palette)
+        app.setStyle('Fusion') # Stil anpassen
+
+
         layout = QtWidgets.QVBoxLayout()
 
         button_layout = QtWidgets.QHBoxLayout()
@@ -169,11 +191,15 @@ class HandicapUI(QtWidgets.QWidget):
         button_layout.addWidget(self.neuer_kurs_button)
         layout.addLayout(button_layout)
 
-        self.handicap_label = QtWidgets.QLabel("Aktuelles Handicap: N/A")
-        self.handicap_label.setStyleSheet("font-size: 20px;")
-        layout.addWidget(self.handicap_label)
+        self.ega_handicap_label = QtWidgets.QLabel("Aktuelles EGA Handicap: N/A")
+        self.ega_handicap_label.setStyleSheet("font-size: 20px; color: white;")
+        layout.addWidget(self.ega_handicap_label)
 
-        self.figure = Figure()
+        self.whs_handicap_label = QtWidgets.QLabel("Aktuelles WHS Handicap: N/A")
+        self.whs_handicap_label.setStyleSheet("font-size: 20px; color: white;")
+        layout.addWidget(self.whs_handicap_label)
+
+        self.figure = Figure(facecolor='#353535')
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
 
@@ -232,22 +258,39 @@ class HandicapUI(QtWidgets.QWidget):
         #soll alles updaten, course und spiele pullen und pushen und graf aktualliesieren und handicap aktualliesieren und die letzt x spiele in die tabelle 
         print("Daten werden aktualisiert")
 
-        aktuelles_handicap = self.berechne_handicap()
-        self.handicap_label.setText(f"Aktuelles Handicap: {aktuelles_handicap}")
+        aktuelles_ega_handicap = self.berechne_ega_handicap()
+        self.ega_handicap_label.setText(f"Aktuelles EGA Handicap: {aktuelles_ega_handicap}")
+
+        aktuelles_whs_handicap = self.berechne_whs_handicap()
+        self.whs_handicap_label.setText(f"Aktuelles WHS Handicap: {aktuelles_whs_handicap}")
 
         x = [1, 2, 3, 4, 5]
         y = [10, 12, 11, 13, 15]
 
         self.figure.clear()
-        ax = self.figure.add_subplot(111)
+        ax = self.figure.add_subplot(111, facecolor='#202020') # Achsenhintergrund
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        ax.spines['bottom'].set_color('white')
+        ax.spines['top'].set_color('white')
+        ax.spines['right'].set_color('white')
+        ax.spines['left'].set_color('white')
+        ax.yaxis.label.set_color('white')
+        ax.xaxis.label.set_color('white')
+        ax.title.set_color('white')
+
         ax.plot(x, y)
         self.canvas.draw()
         
         self.spiele_tabelle.resizeColumnsToContents()
 
-    def berechne_handicap(self):
-        #platzhalter!!!!!!!!!!!!!!!!!!!!
-        return "15.5"
+    def berechne_ega_handicap(self):
+        # Hier die Logik zur Berechnung des EGA-Handicaps einfügen
+        return "15.5"  # Platzhalter
+
+    def berechne_whs_handicap(self):
+        # Hier die Logik zur Berechnung des WHS-Handicaps einfügen
+        return "14.2"  # Platzhalter
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
