@@ -3,11 +3,10 @@ import json
 from datetime import date, datetime, timedelta
 from os import listdir
 from os.path import isfile, join
-import handicapWHS as whs
-import handicapEGA as ega
+import packages.handicapWHS as whs
+import packages.handicapEGA as ega
 import uuid
 from fpdf import FPDF
-import handicapEGA as ega
 
 
 class Helper:
@@ -273,6 +272,41 @@ class Helper:
             result.extend(data)  # Extend the result list with the search results
 
         return result
+
+    def getAllCourses(self) -> list[dict]:
+        """
+        Returns all courses in the database.
+
+        Returns:
+        List[dict]: A list of all courses.
+        """
+        return self.courses.all()
+    
+    def getAllCourseIDs(self) -> list[str]:
+        """
+        Returns a list of all course IDs in the database.
+
+        Returns:
+        List[str]: A list of all course IDs.
+        """
+        return [course["courseID"] for course in self.courses.all()]
+    
+    def getCourseByID(self, courseID: str) -> dict:
+        """
+        Returns a course as a dictionary given its ID.
+
+        Args:
+        courseID (str): The ID of the course to retrieve.
+
+        Returns:
+        dict: The course data.
+        """
+        query = Query()
+        result = self.courses.get(query.courseID == courseID)
+        if result is None:
+            raise KeyError(f"Course with ID {courseID} not found.")
+        return result
+
 
     def export_scorecard(
         self,
