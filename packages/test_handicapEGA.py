@@ -1,7 +1,7 @@
-import pytest
-import handicapEGA as hc
 import json
 import pathlib
+import pytest
+import handicapEGA as hc
 
 def test_handicapToCategory():
     assert hc.handicapToCategory(4.0) == 1
@@ -75,7 +75,7 @@ def test_convertToStableford():
 
 @pytest.fixture
 def games():
-    files = list(pathlib.Path("test").glob("Runde*.json"))
+    files = list(pathlib.Path("test/real_data/games").glob("Runde*.json"))
     runden = dict()
     for file in files:
         with file.open() as file:
@@ -85,7 +85,7 @@ def games():
 
 @pytest.fixture
 def courses():
-    files = list(pathlib.Path("test").glob("Kurs*.json"))
+    files = list(pathlib.Path("test/real_data/courses").glob("Kurs*.json"))
     kurse = dict()
     for file in files:
         with file.open() as file:
@@ -101,6 +101,7 @@ def handicap_before():
 @pytest.fixture
 def handicap_after():
     return [37, 32.5, 27.5, 27.5, 23.7, 23.7, 23.8]
+    # return [37, 32.5, 27.5, 27.5, 23.6, 23.7, 23.7] # correct as per our calculation
     
 def test_calculateNewHandicap(games, courses, handicap_before, handicap_after):
     # this is just to ensure oder of game 1 to 12 since it would sort as game 1, 10, 11, 12, 2, 3 ...

@@ -61,8 +61,8 @@ def ganzzahligeDivision(dividend: float, divisor: float) -> float:
     return dividend // divisor
 
 def spreadPlayingHC(course: dict, handicapStrokes: int, is9Hole: bool) -> list:
-    par = course["par"]
-    strokeIndex = course["handicap_stroke_index"]
+    par = course["par"].copy()
+    strokeIndex = course["handicap_stroke_index"].copy()
     
     holecount_modifier = 9 if is9Hole else 18
 
@@ -70,20 +70,25 @@ def spreadPlayingHC(course: dict, handicapStrokes: int, is9Hole: bool) -> list:
     
     hc_stroke_modifier = 1 if handicapStrokes > 0 else -1
 
+    rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
+    # --- so far ok for negative
+    
     # this creates tuples from the stroke index and a list from 1 to 9
     # and sorts based on the first number (original stroke index), which
     # creates a new stroke index with the same order using numbers 1-9
+    
+    if handicapStrokes < 0:
+        strokeIndex.reverse()
+    
     if is9Hole:
         sorted_tuples = sorted(zip(strokeIndex, list(range(1,10))))
         for i, (_, new_index) in enumerate(sorted_tuples):
             strokeIndex[i] = new_index
 
-    rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
-    for i, index in enumerate(strokeIndex):
-        par[index-1] += everyHole
-        if rem > 0:
-            par[index-1] += hc_stroke_modifier
-            rem -= hc_stroke_modifier
+    for i in range(holecount_modifier):
+        par[i] += everyHole
+        if strokeIndex[i] <= abs(rem):
+            par[i] += hc_stroke_modifier
     
     return par
 
