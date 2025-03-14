@@ -270,6 +270,10 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
                 single = 1
             adjustment -= single
         return adjustment
+    
+    # your HCI can't decrease in cat 6
+    if category == 6:
+        return 0
 
     lower = catToLowerBuffer(is9Hole, category)
     if stablefordScore < lower + cba:
