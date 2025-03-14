@@ -35,18 +35,10 @@ def helper():
 
 @pytest.fixture
 def games():
-    files = list(
-        pathlib.Path(
-            "test/real_data/games/"
-        ).glob("Runde*.json")
-    )
-    files.sort(key=lambda f: int(re.search(r"\d+", f.stem).group()))
-    files = list(
-        pathlib.Path(
-            "test/real_data/games/"
-        ).glob("Runde*.json")
-    )
-    files.sort(key=lambda f: int(re.search(r"\d+", f.stem).group()))
+    files = list(pathlib.Path("./test/real_data/games/").glob("Runde*.json"))
+    files.sort(key=lambda f: int(re.search(r'\d+', f.stem).group()))
+    files = list(pathlib.Path("./test/real_data/games/").glob("Runde*.json"))
+    files.sort(key=lambda f: int(re.search(r'\d+', f.stem).group()))
     games = list()
     for file in files:
         with file.open() as file:
@@ -57,8 +49,8 @@ def games():
 
 @pytest.fixture
 def courses():
-    files = list(pathlib.Path("test/real_data/courses/").glob("Kurs*.json"))
-    files = list(pathlib.Path("test/real_data/courses/").glob("Kurs*.json"))
+    files = list(pathlib.Path("./test/real_data/courses/").glob("Kurs*.json"))
+    files = list(pathlib.Path("./test/real_data/courses/").glob("Kurs*.json"))
     courses = list()
     for file in files:
         with file.open() as file:
@@ -134,19 +126,17 @@ def test_addGame(
         lenLog = len(log)
 
         if index < 7:
-            print(f"{index} EGA {game["game_id"]} {log[lenLog -1 ]["ega"]} == {EGA_handicap[index]}")
+            #print(f"{index} EGA {game["game_id"]} {log[lenLog -1 ]["ega"]} == {EGA_handicap[index]}")
             
             assert pytest.approx(log[lenLog -1]["ega"], rel=0.1) == EGA_handicap[index]
-        if index >= 6:
-            print(
-                f"{index} WHS {game["game_id"]} {log[lenLog -1]["whs"]} == {WHS_handicap[index - 6]}"
-            )
-
-            # assert log[lenLog -1]["whs"] == WHS_handicap[index - 6]
-
+        #if index >= 6:
+            #print(f"{index} WHS {game["game_id"]} {log[lenLog -1]["whs"]} == {WHS_handicap[index - 6]}")
+            
+            #assert log[lenLog -1]["whs"] == WHS_handicap[index - 6]
+    
     print("====================================")
-    #games = helper.getLastGames()
-    #for index, game in enumerate(games):
-        #print(f"Runde {index + 1}: {game["handicap_dif"]} == {score_differential[index]}. 9Hole: {game["is9Hole"]}")
+    games = helper.getLastGames()
+    for index, game in enumerate(games):
+        print(f"Runde {index + 1}: {game["handicap_dif"]} == {score_differential[index]}. 9Hole: {game["is9Hole"]}")
 
         # assert game["handicap_dif"] == score_differential[index]
