@@ -72,7 +72,12 @@ class Helper:
             table.insert(data)
 
     def addCourse(
-        self, courseID: str, courseRating: int, slopeRating: int, par: list[int]
+        self, 
+        courseID: str, 
+        courseRating: int, 
+        slopeRating: int, 
+        par: list[int], 
+        handicapStrokeIndex: list[int]
     ) -> None:
         """
         Adds a new game to tinyDB.
@@ -93,10 +98,11 @@ class Helper:
                 f"Invalid parameter: {slopeRating}. Must be between 55 and 155."
             )
         data = {
-            "course_id": courseID,
+            "courseID": courseID,
             "course_rating": courseRating,
             "slope_rating": slopeRating,
             "par": par,
+            "handicap_stroke_index": handicapStrokeIndex,
         }
         self.courses.insert(data)
 
@@ -137,7 +143,7 @@ class Helper:
         game = { 
                 "game_id": id, 
                 "courseID": courseID, 
-                "date": date.isoformat() if isinstance(gameDate, (date, datetime)) else gameDate, 
+                "date": date.isoformat(gameDate) if isinstance(gameDate, (date, datetime)) else gameDate, 
                 "shots": shots, 
                 "pcc": pcc,
                 "cba": cba,

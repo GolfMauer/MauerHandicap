@@ -103,7 +103,7 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
     # implements 5.1b and 2.2b
     elif len(game["shots"]) == 9:
         # calculation according to https://serviceportal.dgv-intranet.de/regularien/whs-handicap-regeln/i22533_1_Handicap_Regeln_2024.cfm
-        score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slope_rating"])
+        score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slope_rating"])/2
         expectedScore = ((handicapIndex * 1.04) + 2.4) / 2
         differential = score + expectedScore
     else:
