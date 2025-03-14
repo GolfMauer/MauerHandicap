@@ -106,15 +106,7 @@ class Helper:
         }
         self.courses.insert(data)
 
-    def addGame(self, 
-                courseID: str, 
-                shots: list[int], 
-                nineHole: bool,
-                pcc: float=0 ,
-                cba: float=0,
-                gameDate: datetime | str=datetime.now(),
-                handicapAllowance: float = 1
-                ) -> str:
+
     def addGame(self, 
                 courseID: str, 
                 shots: list[int], 

@@ -116,44 +116,7 @@ def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_h
         log = helper.hcLog.all()
         log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
         lenLog = len(log)
-        if index <= 7:
-            print(f"{index} EGA {game["game_id"]} {log[lenLog - 1]["ega"]} == {EGA_handicap[index]}")
-            
-            #assert log[lenLog - 1]["ega"] == EGA_handicap[index+1]
-        elif index >= 7:
-            print(f"{index} WHS {game["game_id"]} {log[lenLog - 1]["whs"]} == {WHS_handicap[index]}")
-            
-            #assert log[lenLog - 1]["whs"] == WHS_handicap[index]
 
-def test_export_scorecard(helper: Helper, courses):
-    helper.courses.insert_multiple(courses)
-    helper.hcLog.insert({"whs": 40.1, "ega": 50.1, "date": datetime.now().isoformat()})
-    
-    helper.export_scorecard(helper.get_all_courses()[0], False, "/home/installadm/hochschule/NoCapHandicap/export.pdf")
-
-    # this won't assert anything for now lol
-
-        log = helper.hcLog.all()
-        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
-        lenLog = len(log)
-        if index <= 7:
-            print(f"{index} EGA {game["game_id"]} {log[lenLog - 1]["ega"]} == {EGA_handicap[index]}")
-            assert log[lenLog - 1]["ega"] == EGA_handicap[index+1]
-        elif index >= 7:
-            print(f"{index} WHS {game["game_id"]} {log[lenLog - 1]["whs"]} == {WHS_handicap[index]}")
-            assert log[lenLog - 1]["whs"] == WHS_handicap[index]
-
-def test_export_scorecard(helper: Helper, courses):
-    helper.courses.insert_multiple(courses)
-    helper.hcLog.insert({"whs": 40.1, "ega": 50.1, "date": datetime.now().isoformat()})
-    
-    helper.export_scorecard(helper.get_all_courses()[0], False, "/home/installadm/hochschule/NoCapHandicap/export.pdf")
-
-    # this won't assert anything for now lol
-
-        log = helper.hcLog.all()
-        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
-        lenLog = len(log)
         if index < 7:
             print(f"{index} EGA {game["game_id"]} {log[lenLog -1 ]["ega"]} == {EGA_handicap[index]}")
             
@@ -161,11 +124,11 @@ def test_export_scorecard(helper: Helper, courses):
         if index >= 6:
             print(f"{index} WHS {game["game_id"]} {log[lenLog -1]["whs"]} == {WHS_handicap[index - 6]}")
             
-            #assert log[lenLog -1]["whs"] == WHS_handicap[index - 7]
+            #assert log[lenLog -1]["whs"] == WHS_handicap[index - 6]
     
     print("====================================")
-    #games = helper.getLastGames()
-    #for index, game in enumerate(games):
-        #print(f"Runde {index + 1}: {game["handicap_dif"]} == {score_differential[index]}. 9Hole: {game["is9Hole"]}")
+    games = helper.getLastGames()
+    for index, game in enumerate(games):
+        print(f"Runde {index + 1}: {game["handicap_dif"]} == {score_differential[index]}. 9Hole: {game["is9Hole"]}")
 
         #assert game["handicap_dif"] == score_differential[index]
