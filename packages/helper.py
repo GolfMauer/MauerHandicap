@@ -268,9 +268,9 @@ class Helper:
 
     def export_scorecard(
         self,
-        course: dict,
-        is_whs: bool,
         filepath: str,
+        course: dict,
+        is_whs: bool | None = None,
         cr_override: float | None = None,
         sr_override: int | None = None,
         hcp_override: list[int] | None = None,
@@ -284,13 +284,16 @@ class Helper:
             pcc (int): PCC or CBA of the game
             filepath (str): The location and filename the scorecard should be saved to
         """
+        if not use_last_values:
+            if is_whs is None:
+                raise AttributeError("Attribute is_whs missing.")
+
         hci = self.get_last_hci(is_whs)
 
         # I don't trust that I won't accidentally be overwriting things
         # and I'm too lazy to copy these into their own variables
         course = course.copy()
-        
-        
+
         if cr_override is not None:
             course["course_rating"] = cr_override
 
@@ -300,6 +303,7 @@ class Helper:
         if hcp_override is not None:
             course["handicap_stroke_index"] = hcp_override
 
+        # TODO: bei last values soll nur der eine bool angegeben werden müssen
         if use_last_values:
             course["course_rating"] = self.last_cr_sr_hcp["cr"]
             course["slope_rating"] = self.last_cr_sr_hcp["sr"]
@@ -370,8 +374,11 @@ def prepare_table_data(
     hc_strokes = ega.playingHandicap(
         False, hci, course["course_rating"], course["slope_rating"], sum(course["par"])
     )
+    allocation_marker = "/"
+    if hc_strokes < 0 :
+        allocation_marker = "="
     strokes = ega.spreadPlayingHC(course, hc_strokes, False)
-    stroke_allocation = [x - y for x, y in zip(strokes, par)]
+    stroke_allocation = list(map(abs, [x - y for x, y in zip(strokes, par)]))
     # Hole#, Par, HCP, hcp-strokes, shots taken (empty)
     rows = []
     for i in range(0, 9):
@@ -382,7 +389,7 @@ def prepare_table_data(
                     i + 1,
                     par[i],
                     course["handicap_stroke_index"][i],
-                    "/" * stroke_allocation[i],
+                    allocation_marker * stroke_allocation[i],
                     "",
                 ),
             )
@@ -398,13 +405,13 @@ def prepare_table_data(
                     i + 1,
                     par[i],
                     course["handicap_stroke_index"][i],
-                    stroke_allocation[i] * "/",
+                    allocation_marker * stroke_allocation[i],
                     "",
                 ),
             )
         )
         rows.append(row)
     rows.append(("IN", str(sum(par[9:18])), "", "", ""))
-    rows.append(("GESAMT", str(sum(par)), "", "", ""))
+    rows.append(("GESAMT", str(sum(par)), "", str(hc_strokes), ""))
 
     return rows

@@ -116,6 +116,8 @@ def test_export_scorecard(helper: Helper, courses):
     helper.courses.insert_multiple(courses)
     helper.hcLog.insert({"whs": 40.1, "ega": 50.1, "date": datetime.now().isoformat()})
     
-    helper.export_scorecard(helper.get_all_courses()[0], False, "/home/installadm/hochschule/NoCapHandicap/export.pdf")
-
-    # this won't assert anything for now lol
+    helper.export_scorecard("./export.pdf", helper.get_all_courses()[2], False)
+    # helper.export_scorecard(helper.get_all_courses()[2], False, "./export.pdf", 65, 114)
+    # helper.export_scorecard(helper.get_all_courses()[2], False, "./export.pdf", use_last_values=True)
+    with pytest.raises(AttributeError):
+        helper.export_scorecard("./export.pdf", helper.get_all_courses()[2])

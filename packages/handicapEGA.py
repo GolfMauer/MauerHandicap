@@ -71,10 +71,15 @@ def spreadPlayingHC(course: dict, handicapStrokes: int, is9Hole: bool) -> list:
     hc_stroke_modifier = 1 if handicapStrokes > 0 else -1
 
     rem = handicapStrokes - hc_stroke_modifier*(everyHole * holecount_modifier)
+    # --- so far ok for negative
     
     # this creates tuples from the stroke index and a list from 1 to 9
     # and sorts based on the first number (original stroke index), which
     # creates a new stroke index with the same order using numbers 1-9
+    
+    if handicapStrokes < 0:
+        strokeIndex.reverse()
+    
     if is9Hole:
         sorted_tuples = sorted(zip(strokeIndex, list(range(1,10))))
         for i, (_, new_index) in enumerate(sorted_tuples):
@@ -82,7 +87,7 @@ def spreadPlayingHC(course: dict, handicapStrokes: int, is9Hole: bool) -> list:
 
     for i in range(holecount_modifier):
         par[i] += everyHole
-        if strokeIndex[i] <= rem:
+        if strokeIndex[i] <= abs(rem):
             par[i] += hc_stroke_modifier
     
     return par
