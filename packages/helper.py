@@ -15,7 +15,6 @@ class Helper:
         self.games = games
         self.courses = courses
         self.hcLog = hcLog
-        self.last_cr_sr_hcp = None
 
     # implements whs 5.4
     def updateHandicapIndex(self, game: dict, gameDate: datetime | str) -> dict:
@@ -279,53 +278,74 @@ class Helper:
         """Generates a Scorecard as PDF and outputs it to given filepath
 
         Args:
+            filepath (str): Path the File will be saved to.
             course (dict): The Course being played on
-            hci (float): The Handicap Index of the player
-            pcc (int): PCC or CBA of the game
-            filepath (str): The location and filename the scorecard should be saved to
+            is_whs (bool | None, optional): . Defaults to None.
+            cr_override (float | None, optional): Value to override course rating with. Defaults to None.
+            sr_override (int | None, optional): Value to override slope rating with. Defaults to None.
+            hcp_override (list[int] | None, optional): List to override hcp-index with. Defaults to None.
+            use_last_values (bool | None, optional): Flag to use last values stored in course. Defaults to None.
+
+        Raises:
+            AttributeError: Raised when is_whs is missing when not using last values.
+            ValueError: Raised when trying to access last values, but they are nonexistent.
         """
         if not use_last_values:
             if is_whs is None:
                 raise AttributeError("Attribute is_whs missing.")
 
-        hci = self.get_last_hci(is_whs)
 
         # I don't trust that I won't accidentally be overwriting things
-        # and I'm too lazy to copy these into their own variables
-        course = course.copy()
+        course_copy = course.copy()
 
-        if cr_override is not None:
-            course["course_rating"] = cr_override
-
-        if sr_override is not None:
-            course["slope_rating"] = sr_override
-
-        if hcp_override is not None:
-            course["handicap_stroke_index"] = hcp_override
-
-        # TODO: bei last values soll nur der eine bool angegeben werden müssen
         if use_last_values:
-            course["course_rating"] = self.last_cr_sr_hcp["cr"]
-            course["slope_rating"] = self.last_cr_sr_hcp["sr"]
-            course["handicap_stroke_index"] = self.last_cr_sr_hcp["hcp"]
+            # TODO: has to be written to DB, only the attribute is pass by ref, but does not change entry in DB
+            required_fields = [
+                "course_rating_override",
+                "slope_rating_override",
+                "handicap_stroke_index_override"
+                "is_whs_scorecard"
+            ]
 
-        self.last_cr_sr_hcp = {
-            "cr": course["course_rating"],
-            "sr": course["slope_rating"],
-            "hcp": course["handicap_stroke_index"],
-        }
+            for field in required_fields:
+                if field not in course or course[field] is None:
+                    # This should envoke a dialog (UI) that there are no last values avaliable
+                    raise ValueError(f"Missing or unset field: {field}")
+            
+            course_copy["course_rating"] = course["course_rating_override"]
+            course_copy["slope_rating"] = course["slope_rating_override"]
+            course_copy["handicap_stroke_index"] = course["handicap_stroke_index_override"]
+            course_copy["is_whs_scorecard"] = course["is_whs_scorecard"]
+        else:
+            course["is_whs_scorecard"] = is_whs
+            course_copy["is_whs_scorecard"] = is_whs
+            if cr_override is not None:
+                course_copy["course_rating"] = cr_override
+                course["course_rating_override"] = cr_override
 
-        data = prepare_table_data(course, hci)
+            if sr_override is not None:
+                course_copy["slope_rating"] = sr_override
+                course["slope_rating_override"] = sr_override
+
+            if hcp_override is not None:
+                course_copy["handicap_stroke_index"] = hcp_override
+                course["handicap_stroke_index_override"] = hcp_override
+        
+        
+        
+        hci = self.get_last_hci(course_copy["is_whs_scorecard"])
+
+        data = prepare_table_data(course_copy, hci)
         # create pdf page
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Helvetica", style="B", size=22)
-        pdf.cell(text=f"Kurs: {course["courseID"]}")
+        pdf.cell(text=f"Kurs: {course_copy["courseID"]}")
         pdf.ln(h=14)
         pdf.set_font("Helvetica", size=14)
 
         today = datetime.now().strftime("%x")  # uses local date format
-        text = f"__**CR:** {course["course_rating"]}  **SR:** {course["slope_rating"]}  **PCC/CBA:** ____  **Datum:** {today}  **HCI:** {hci}  **Name:**__"
+        text = f"__**CR:** {course_copy["course_rating"]}  **SR:** {course_copy["slope_rating"]}  **PCC/CBA:** ____  **Datum:** {today}  **HCI:** {hci}  **Name:**__"
         pdf.multi_cell(
             w=pdf.get_string_width(text, markdown=True) + 2,
             text=text,
@@ -346,14 +366,6 @@ class Helper:
                     row.cell(cell)
 
         pdf.output(filepath)
-
-    def get_all_courses(self) -> list[dict]:
-        """Returns a list of dictionaries describing all courses saved.
-
-        Returns:
-            list[dict]: A list of courses.
-        """
-        return self.courses.all()
 
 
 def prepare_table_data(
