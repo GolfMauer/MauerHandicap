@@ -130,15 +130,13 @@ def test_addGame(
         helper.addGame(courseID, shots, nineHole, pcc, cba, gameDate)
 
         log = helper.hcLog.all()
-        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
+        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]))
         lenLog = len(log)
 
         if index < 7:
-            print(
-                f"{index} EGA {game["game_id"]} {log[lenLog -1 ]["ega"]} == {EGA_handicap[index]}"
-            )
-
-            # assert log[lenLog -1]["ega"] == EGA_handicap[index + 1]
+            print(f"{index} EGA {game["game_id"]} {log[lenLog -1 ]["ega"]} == {EGA_handicap[index]}")
+            
+            assert pytest.approx(log[lenLog -1]["ega"], rel=0.1) == EGA_handicap[index]
         if index >= 6:
             print(
                 f"{index} WHS {game["game_id"]} {log[lenLog -1]["whs"]} == {WHS_handicap[index - 6]}"
@@ -147,10 +145,8 @@ def test_addGame(
             # assert log[lenLog -1]["whs"] == WHS_handicap[index - 6]
 
     print("====================================")
-    games = helper.getLastGames()
-    for index, game in enumerate(games):
-        print(
-            f"Runde {index + 1}: {game["handicap_dif"]} == {score_differential[index]}. 9Hole: {game["is9Hole"]}"
-        )
+    #games = helper.getLastGames()
+    #for index, game in enumerate(games):
+        #print(f"Runde {index + 1}: {game["handicap_dif"]} == {score_differential[index]}. 9Hole: {game["is9Hole"]}")
 
         # assert game["handicap_dif"] == score_differential[index]

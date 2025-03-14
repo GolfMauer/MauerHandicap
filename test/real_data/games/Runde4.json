@@ -2,11 +2,11 @@
     "game_id": "Runde 4",
     "handicap_differential": 0.0,
     "courseID": "Runde 3",
-    "date": "2025-02-11T12:00:00.000000",
+    "date": "2025-02-14T12:00:00.000000",
     "shots": [5, 6, 6, 7, 6, 6, 4, 7, 6, 7, 6, 6, 5, 5, 6, 6, 5, 6],
     "exceptional_reduction": 0.0,
-    "pcc": 0.0,
-    "cba" : 0.0,
+    "pcc": 0,
+    "cba": 0,
     "is9Hole": false,
     "handicap_allowance": 1
 }
