@@ -1,45 +1,79 @@
 from datetime import datetime, timedelta
+import pathlib
 import random
-import re
 from tempfile import TemporaryDirectory
 import json
-from os import listdir
-from os.path import isfile, join
 
 import pytest
-from packages.helper import Helper
+from tinydb import TinyDB
+from helper import Helper
 
 
 # Fixture to set up and tear down the temporary database
 @pytest.fixture
-def temp_db():
+def helper():
     with TemporaryDirectory() as temp_dir:
-        db_path = f"{temp_dir}/test_db.json"
-        db = MauerDBs(db_path)
-        yield db
+        db_dir = f"{temp_dir}/test_db.json"
+        # Initialize the database
+        db = TinyDB(db_dir)
+
+        # Initialize tables
+        games = db.table("games", cache_size=20) # stores the games that were already calculated
+        courses = db.table("courses") # stores the courses
+        hcLog = db.table("hcLog", cache_size=366) # stores the old HCs max one per day
+
+        # creating instance of Helper and setting default tables
+        help = Helper(games, courses, hcLog)
+
+        yield help
         db.close()
 
-# Fixture to insert one game
+
 @pytest.fixture
-def one_game(temp_db):
-    mock_data = [
-        {
-            "game_id": "1",
-            "handicap_differential": 0.0, 
-            "courseID": "Womp Womp",
-            "date": "2024-12-03T11:41:30.013870",
-            "shots": [3, 4, 5, 3, 4, 5, 3, 3, 4, 3, 3, 3, 3, 5, 4, 3, 4, 5]
-        }
-    ]
-    temp_db.insert_multiple(mock_data)
-    return temp_db
+def games():
+    files = list(pathlib.Path("test").glob("Runde*.json"))
+    games = list()
+    for file in files:
+        with file.open() as file:
+            data = json.load(file)
+        games.append(data)
+    return games
+
+
+@pytest.fixture
+def courses():
+    files = list(pathlib.Path("test/courses").glob("course_*.json"))
+    courses = list()
+    for file in files:
+        with file.open() as file:
+            data = json.load(file)
+        courses.append(data)
+    return courses
+
+
+@pytest.fixture
+def score_differential():
+    return [ 37.4, 29.6, 24.1, 28.4, 18.8, 31.1, 36, 21.7, 15.4, 21.7, 28.6, 46,7 ]
+
+
+@pytest.fixture
+def WHS_handicap():
+    # only for game 7 to 12
+    return [ 29.3, 28.4 ,25.6 ,23.9 , 23.5, 23.5 ]
+
+
+@pytest.fixture
+def EGA_handicap():
+    # just 7 for now because this is only ega data
+    return [54, 37, 32.5, 27.5, 27.5, 23.7, 23.7, 23.8]
+
 
 
 #fixture to insert 21 games
 @pytest.fixture
-def multiple_games(temp_db):
+def multiple_games(helper: Helper):
     # Generate mock data with 21 entries
-    mock_data = []
+    mock_data: list[dict] = []
     base_date = datetime(2024, 12, 3, 11, 41, 30)
     course_names = ["Womp Womp", "Sunny Links", "Green Meadow", "Pine Valley"]
     
@@ -52,129 +86,38 @@ def multiple_games(temp_db):
             "shots": [random.randint(3, 6) for _ in range(18)]
         })
 
-    temp_db.insert_multiple(mock_data)
-    return temp_db
+    helper.games.insert_multiple(mock_data)
+    return helper
 
 
-def test_insert_from_dir(temp_db):
-    path = "test/courses/"
-    temp_db.insertFromDir(path)
-    db_data = temp_db.all()
-    arr = []
-    
-    files = [file for file in listdir(path) if isfile(join(path, file))]
+def test_addGame(helper, games, courses, score_differential, WHS_handicap, EGA_handicap):
+    helper.courses.insert_multiple(courses)
 
-    for file in files:
-        json_file = open(path + file, "r")
-        data = json.load(json_file)
-        arr.append(data)
-
-    assert db_data == arr 
+    def checkChanges(helper: Helper, i: int):
+        log = helper.hcLog.all()
+        log.sort(key=lambda doc: datetime.fromisoformat(doc["date"]), reverse=True)
+        if i <= 7:
+            assert log[0]["ega"] == EGA_handicap[i]
+        elif i >= 7:
+            assert log[0]["whs"] == EGA_handicap[i]
 
 
-def test_add_course(temp_db):
-    id = "Nimons Boulevard"
-    courseRating = 67
-    slopeRating = 113
-    par = [3, 4, 5]
-    temp_db.addCourse(id, courseRating, slopeRating, par)
-    
-    data = temp_db.all()
-    data = data[0]
-    
-    assert data["course_id"] == id
-    assert data["course_rating"] == courseRating
-    assert data["slope_rating"] == slopeRating
-    assert data["par"] == par
+    for i, game in enumerate(games):
+        courseID = game["courseID"]
+        shots = game["shots"]
+        nineHole = game["is9Hole"]
+        pcc = game["pcc"]
+        cba = game["cba"]
+        gameDate = game["date"]
+        helper.addGame(courseID, shots, nineHole, pcc, cba, gameDate)
+        checkChanges(helper, i)
 
+def test_export_scorecard(helper: Helper, courses):
+    helper.courses.insert_multiple(courses)
+    helper.hcLog.insert({"whs": 40.1, "ega": 50.1, "date": datetime.now().isoformat()})
 
-def test_add_course_slope_outOfBounds(temp_db):
-    id = "Nimons Boulevard"
-    courseRating = 67
-    slopeRating = 0 # Invalid slope
-    par = [3, 4, 5]
-
-    expected_message = f"Invalid parameter: {slopeRating}. Must be between 55 and 155."
-    with pytest.raises(ValueError, match=re.escape(expected_message)):
-        temp_db.addCourse(id, courseRating, slopeRating, par)
-
-
-def test_add_game_datetime(temp_db):
-    date = datetime.now()
-    handicap = 15.3
-    id = "Womp Womp"
-    shots = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    pcc = 2.0
-    uuid = temp_db.addGame(handicap, id, date, shots, pcc)
-    
-
-    data = temp_db.all()
-    data = data[0]
-
-    assert data["handicap_differential"] == handicap 
-    assert data["courseID"] == id 
-    assert data["date"] == date.isoformat()
-    assert data["shots"] == shots
-    assert uuid != ""
-    assert data["pcc"] == pcc
-
-def test_add_game_isoString(temp_db):
-    date = datetime.now().isoformat()
-    handicap = 15.3
-    id = "Womp Womp"
-    shots = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    pcc = 2.0
-    uuid = temp_db.addGame(handicap, id, date, shots, pcc)
-    
-
-    data = temp_db.all()
-    data = data[0]
-
-    assert data["handicap_differential"] == handicap 
-    assert data["courseID"] == id 
-    assert data["date"] == date
-    assert data["shots"] == shots
-    assert uuid != ""
-    assert data["pcc"] == pcc
-
-
-def test_get_games_empty (temp_db):
-    result = temp_db.getLastGames()
-    assert result == []
-
-
-def test_get_games_m_to_large (one_game):
-    result = one_game.getLastGames(0, 3)
-    assert len(result) != 0 and len(result) < 3
-
-def test_get_games_n_to_large (one_game):
-    result = one_game.getLastGames(3, 4)
-    assert result == []
-
-def test_get_games_n_equal_m (one_game):
-    result = one_game.getLastGames(0, 0)
-    assert len(result) == 1
-
-
-def test_get_games_n_larger_m (multiple_games):
-    result = multiple_games.getLastGames(3, 0)
-    assert len(result) == 1
-
-def test_get_games(multiple_games):
-    result = multiple_games.getLastGames()
-    assert len(result) == 20
-
-def test_get_games_sorted(multiple_games):
-    result = multiple_games.getLastGames()
-
-    sorted_games = sorted(
-        result, 
-        key=lambda x: datetime.fromisoformat(x['date']), 
-        reverse=True)
-    
-    assert result == sorted_games
-
-def test_get_games_slicing(multiple_games):
-    result = multiple_games.getLastGames(3, 6)
-    games = multiple_games.getLastGames()
-    assert result == games[3:7]
+    helper.export_scorecard("./export.pdf", helper.courses.all()[2], False, 1, 1, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], False)
+    # helper.export_scorecard(helper.courses.all()[2], False, "./export.pdf", 65, 114)
+    helper.export_scorecard("./export.pdf", helper.courses.all()[2], use_last_values=True)
+    with pytest.raises(AttributeError):
+        helper.export_scorecard("./export.pdf", helper.courses.all()[2])
