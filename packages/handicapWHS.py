@@ -59,7 +59,7 @@ def handicap(games: list[dict], lowHandicap: float) -> float:
     # implements 5.3
     if handicap > 54 or not enoughHoles: handicap = 54
         
-    return handicapEGA.roundHalfUp(handicap, 1)
+    return roundHalfUp(handicap, 1)
 
 
 # implements 5.7+8
@@ -120,7 +120,7 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
     else:
         game["exceptional_reduction"] = 0.0
     
-    game["handicap_dif"] = handicapEGA.roundHalfUp(differential, 1)
+    game["handicap_dif"] = roundHalfUp(differential, 1)
 
     return game
 
@@ -149,7 +149,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 shots[i] = par[i] + 5
     # implements 3.1b
     elif playingHandicap >= 54:
-        adjustedPar = handicapEGA.spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
+        adjustedPar = spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
                 if adjustedPar[i] + 2 - shot >= 4:
@@ -157,7 +157,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 else:
                     shots[i] = adjustedPar[i] + 2
     else:
-        adjustedPar = handicapEGA.spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
+        adjustedPar = spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
 
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
