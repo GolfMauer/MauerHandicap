@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets
 from qt_components.new_game_dialog import NewGameDialog
 from qt_components.new_course_dialog import NewCourseDialog
 from qt_components.delete_course_dialog import DeleteCourseDialog
+from qt_components.export_scorecard_dialog import ExportScorecardDialog
 
 
 class HeaderButton(QtWidgets.QWidget):
@@ -51,7 +52,7 @@ class HeaderButton(QtWidgets.QWidget):
         dialog.exec_()
         
     def oeffne_export_scorecard_dialog(self):
-        dialog = ExportScorecardDialog()
+        dialog = ExportScorecardDialog(self.help)
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
             kurs, is_whs, file_path, kurs_rating, slope_rating, stroke_indices, use_last_values = dialog.get_export_daten()
             self.help.export_scorecard(kurs, is_whs, file_path, kurs_rating, slope_rating, stroke_indices, use_last_values)
