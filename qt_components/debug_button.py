@@ -74,5 +74,3 @@ class DebugButtons(QtWidgets.QWidget):
                 course["par"],
                 course["handicap_stroke_index"],
             )
-#################################################################################
-
