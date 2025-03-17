@@ -88,7 +88,7 @@ def multiple_games(helper: Helper):
         mock_data.append(
             {
                 "game_id": str(i),
-                "handicap_differential": round(random.uniform(0.0, 54.0), 1),
+                "handicap_dif": round(random.uniform(0.0, 54.0), 1),
                 "courseID": random.choice(course_names),
                 "date": (base_date - timedelta(days=i)).isoformat(),
                 "shots": [random.randint(3, 6) for _ in range(18)],

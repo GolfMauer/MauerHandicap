@@ -1,6 +1,6 @@
 # sauce https://www.usga.org/handicapping/roh/2020-rules-of-handicapping.html
 import statistics as stats
-from packages.handicapEGA import roundHalfUp, spreadPlayingHC
+from handicapEGA import roundHalfUp, spreadPlayingHC
 
 # implements 5.2a
 def handicap(games: list[dict], lowHandicap: float) -> float:

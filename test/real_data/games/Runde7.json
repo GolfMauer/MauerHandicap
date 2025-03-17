@@ -1,6 +1,6 @@
 {
     "game_id": "Runde 7",
-    "handicap_differential": 0.0,
+    "handicap_dif": 0.0,
     "courseID": "Runde 6",
     "date": "2025-02-17T12:00:00.000000",
     "shots": [5, 7, 9, 7, 6, 6, 6, 6, 6],
