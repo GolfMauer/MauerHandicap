@@ -262,6 +262,9 @@ def calculateAdjustment(stablefordScore: int, handicap: float, cba: int, is9Hole
     if category == 6:
         cba = 0 # cba does not apply to cat 6
 
+    if category == 1 or category == 6:
+        return 0
+
     if stablefordScore > BUFFER_UPPER_LIMIT + cba:
         for _ in range(stablefordScore - (BUFFER_UPPER_LIMIT + cba)):
             category = handicapToCategory(handicap + adjustment)

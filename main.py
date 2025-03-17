@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 import matplotlib
 matplotlib.use('Qt5Agg')
@@ -382,7 +383,7 @@ class HandicapUI(QtWidgets.QWidget):
         layout.addWidget(self.canvas)
 
         self.spiele_tabelle = QtWidgets.QTableWidget()
-        self.spiele_tabelle.setColumnCount(4)
+        self.spiele_tabelle.setColumnCount(3)
         self.spiele_tabelle.setHorizontalHeaderLabels(["Datum", "Kurs", "Schläge"])
         layout.addWidget(self.spiele_tabelle)
 
@@ -423,12 +424,9 @@ class HandicapUI(QtWidgets.QWidget):
         new_games = help.getLastGames()
         try:
             new_game = new_games[-1]
-            new_handicap = help.updateHandicapIndex(new_game, new_game["date"])
-            aktuelles_ega_handicap = new_handicap["ega"]
-            self.ega_handicap_label.setText(f"Aktuelles EGA Handicap: {aktuelles_ega_handicap}")
-
-            aktuelles_whs_handicap = new_handicap["whs"]
-            self.whs_handicap_label.setText(f"Aktuelles WHS Handicap: {aktuelles_whs_handicap}")
+            new_handicap = help.getHCLog(startDate=new_game["date"])
+            self.ega_handicap_label.setText(f"Aktuelles EGA Handicap: {new_handicap["ega"]}")
+            self.whs_handicap_label.setText(f"Aktuelles WHS Handicap: {new_handicap['whs']}")
         except:
             self.ega_handicap_label.setText("Aktuelles EGA Handicap: N/A")
             self.whs_handicap_label.setText("Aktuelles WHS Handicap: N/A")
