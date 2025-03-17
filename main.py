@@ -376,6 +376,7 @@ class HandicapUI(QtWidgets.QWidget):
     def neuer_kurs_hinzugefuegt(self):
         dialog = NeuerKursDialog()
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            dialog.get_kurs_daten()
             self.update()
 
     def oeffne_export_scorecard_dialog(self): #-----------------------------------------
