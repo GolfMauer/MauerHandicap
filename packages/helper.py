@@ -1,4 +1,4 @@
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 import json
 from datetime import date, datetime, timedelta
 from os import listdir
@@ -8,7 +8,6 @@ import handicapEGA as ega
 import uuid
 from fpdf import FPDF
 import handicapEGA as ega
-
 
 class Helper:
     def __init__(self, games, courses, hcLog):
@@ -303,36 +302,33 @@ class Helper:
             required_fields = [
                 "course_rating_override",
                 "slope_rating_override",
-                "handicap_stroke_index_override"
+                "handicap_stroke_index_override",
                 "is_whs_scorecard"
             ]
-
             for field in required_fields:
                 if field not in course or course[field] is None:
                     # This should envoke a dialog (UI) that there are no last values avaliable
                     raise ValueError(f"Missing or unset field: {field}")
-            
+
             course_copy["course_rating"] = course["course_rating_override"]
             course_copy["slope_rating"] = course["slope_rating_override"]
             course_copy["handicap_stroke_index"] = course["handicap_stroke_index_override"]
             course_copy["is_whs_scorecard"] = course["is_whs_scorecard"]
         else:
-            course["is_whs_scorecard"] = is_whs
             course_copy["is_whs_scorecard"] = is_whs
+            self.courses.update({"is_whs_scorecard": is_whs}, where('courseID') == course["courseID"])
             if cr_override is not None:
                 course_copy["course_rating"] = cr_override
-                course["course_rating_override"] = cr_override
+                self.courses.update({"course_rating_override": cr_override}, where('courseID') == course["courseID"])
 
             if sr_override is not None:
                 course_copy["slope_rating"] = sr_override
-                course["slope_rating_override"] = sr_override
+                self.courses.update({"slope_rating_override": sr_override}, where('courseID') == course["courseID"])
 
             if hcp_override is not None:
                 course_copy["handicap_stroke_index"] = hcp_override
-                course["handicap_stroke_index_override"] = hcp_override
-        
-        
-        
+                self.courses.update({"handicap_stroke_index_override": hcp_override}, where('courseID') == course["courseID"])
+
         hci = self.get_last_hci(course_copy["is_whs_scorecard"])
 
         data = prepare_table_data(course_copy, hci)

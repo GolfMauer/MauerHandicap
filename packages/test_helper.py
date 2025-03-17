@@ -116,7 +116,7 @@ def test_export_scorecard(helper: Helper, courses):
     helper.courses.insert_multiple(courses)
     helper.hcLog.insert({"whs": 40.1, "ega": 50.1, "date": datetime.now().isoformat()})
 
-    helper.export_scorecard("./export.pdf", helper.courses.all()[2], False, 1, 1, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18])
+    helper.export_scorecard("./export.pdf", helper.courses.all()[2], False, 1, 1, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], False)
     # helper.export_scorecard(helper.courses.all()[2], False, "./export.pdf", 65, 114)
     helper.export_scorecard("./export.pdf", helper.courses.all()[2], use_last_values=True)
     with pytest.raises(AttributeError):
