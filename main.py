@@ -58,12 +58,6 @@ class HandicapUI(QtWidgets.QWidget):
 
         self.update()
 
-        
-    def oeffne_export_scorecard_dialog(self):
-        dialog = ExportScorecardDialog()
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
-            kurs, is_whs, file_path, kurs_rating, slope_rating, stroke_indices, use_last_values = dialog.get_export_daten()
-            help.export_scorecard(kurs, is_whs, file_path, kurs_rating, slope_rating, stroke_indices, use_last_values)
 
     def update(self):
         new_games = help.getLastGames()
@@ -111,7 +105,7 @@ class HandicapUI(QtWidgets.QWidget):
 
         self.spiele_tabelle.resizeColumnsToContents()
 
-# moved out to make paltte global
+# moved out to make palette global
 def setColors():
     dark_palette = QtGui.QPalette()
     dark_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
