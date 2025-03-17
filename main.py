@@ -62,14 +62,6 @@ class NeuesSpielDialog(QtWidgets.QDialog):
 
         self.kurs_combo.currentIndexChanged.connect(self.update_schlagzahl_eingabe)
 
-    def update_schlagzahl_eingabe(self):
-        kurs_name = self.kurs_combo.currentText()
-        kurs_info = help.getCourseByID(kurs_name)
-        locher = len(kurs_info["par"])
-        for i in range(1, 19):
-            self.schlagzahl_eingabe[i].setVisible(i <= locher)
-            self.schlagzahl_labels[i].setVisible(i <= locher)
-
     def get_spiel_daten(self):
         kurs = self.kurs_combo.currentText()
         kurs_info = help.getCourseByID(kurs)
@@ -341,12 +333,13 @@ class HandicapUI(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         # create color palette
-        self.dark_palette = QtGui.QPalette()
+        
         
         # main component
         self.layout = QtWidgets.QVBoxLayout()
 
         self.headerButton = HeaderButton(help, self)
+        
         
 
         button_header = QtWidgets.QHBoxLayout()
@@ -395,7 +388,6 @@ class HandicapUI(QtWidgets.QWidget):
         app.setStyle('Fusion') 
         self.setWindowTitle("Golf Handicap Rechner")
         self.setWindowIcon(QIcon("./mauerIcon.ico"))
-        self.setColors()
         
         self.layout.addWidget(self.headerButton)
 
@@ -405,21 +397,7 @@ class HandicapUI(QtWidgets.QWidget):
         self.update()
 
 
-    def setColors(self):
-            self.dark_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
-            self.dark_palette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
-            self.dark_palette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
-            self.dark_palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(53, 53, 53))
-            self.dark_palette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
-            self.dark_palette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
-            self.dark_palette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
-            self.dark_palette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
-            self.dark_palette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
-            self.dark_palette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
-            self.dark_palette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
-            self.dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
-            self.dark_palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
-            self.setPalette(self.dark_palette)
+
 
     def oeffne_neues_spiel_dialog(self):
         kurse = help.getAllCourseIDs()
@@ -491,6 +469,24 @@ class HandicapUI(QtWidgets.QWidget):
 
         self.spiele_tabelle.resizeColumnsToContents()
 
+# moved out to make paltte global
+def setColors():
+    dark_palette = QtGui.QPalette()
+    dark_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
+    dark_palette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
+    dark_palette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
+    dark_palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(53, 53, 53))
+    dark_palette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
+    dark_palette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
+    dark_palette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
+    dark_palette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
+    dark_palette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
+    dark_palette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
+    dark_palette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
+    dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
+    dark_palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
+    
+    return dark_palette
 
 if __name__ == "__main__":
     db_dir = "./db"  # should maybe be changed to %APPDATA%
@@ -511,6 +507,7 @@ if __name__ == "__main__":
     help = Helper(games, courses, hcLog)
 
     app = QtWidgets.QApplication(sys.argv)
+    app.setPalette(setColors())
     ui = HandicapUI()
     ui.show()
     sys.exit(app.exec_())
