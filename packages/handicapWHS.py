@@ -1,6 +1,6 @@
 # sauce https://www.usga.org/handicapping/roh/2020-rules-of-handicapping.html
 import statistics as stats
-from handicapEGA import roundHalfUp, spreadPlayingHC
+from packages import handicapEGA
 
 # implements 5.2a
 def handicap(games: list[dict], lowHandicap: float) -> float:
@@ -59,7 +59,7 @@ def handicap(games: list[dict], lowHandicap: float) -> float:
     # implements 5.3
     if handicap > 54 or not enoughHoles: handicap = 54
         
-    return roundHalfUp(handicap, 1)
+    return handicapEGA.roundHalfUp(handicap, 1)
 
 
 # implements 5.7+8
@@ -118,7 +118,7 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
     else:
         game["exceptional_reduction"] = 0.0
     
-    game["handicap_dif"] = roundHalfUp(differential, 1)
+    game["handicap_dif"] = handicapEGA.roundHalfUp(differential, 1)
 
     return game
 
@@ -147,7 +147,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 shots[i] = par[i] + 5
     # implements 3.1b
     elif playingHandicap >= 54:
-        adjustedPar = spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
+        adjustedPar = handicapEGA.spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:
                 if adjustedPar[i] + 2 - shot >= 4:
@@ -155,7 +155,7 @@ def adjustGrossScore(game: dict, course: dict, handicapIndex: float) -> int:
                 else:
                     shots[i] = adjustedPar[i] + 2
     else:
-        adjustedPar = spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
+        adjustedPar = handicapEGA.spreadPlayingHC(course, sum(game["shots"]), game["is9Hole"])
 
         for i, shot in enumerate(shots):
             if shot > adjustedPar[i] + 2:

@@ -3,8 +3,8 @@ import json
 from datetime import date, datetime, timedelta
 from os import listdir
 from os.path import isfile, join
-import handicapWHS as whs
-import handicapEGA as ega
+from packages import handicapWHS as whs
+from packages import handicapEGA as ega
 import uuid
 from fpdf import FPDF
 
