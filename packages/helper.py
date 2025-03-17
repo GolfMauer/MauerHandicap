@@ -301,10 +301,8 @@ class Helper:
         result = self.courses.remove(query.courseID == courseID)
 
         if result:
-            print("gelöscht")
             return True
         else:
-            print("löschen fehlgeschlaagen")
             return False
 
     def getCourseByID(self, courseID: str) -> dict:

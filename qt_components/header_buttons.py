@@ -5,6 +5,7 @@ matplotlib.use('Qt5Agg')
 from PyQt5 import QtWidgets
 from qt_components.new_game_dialog import NewGameDialog
 from qt_components.new_course_dialog import NewCourseDialog
+from qt_components.delete_course_dialog import DeleteCourseDialog
 
 
 class HeaderButton(QtWidgets.QWidget):
@@ -46,7 +47,7 @@ class HeaderButton(QtWidgets.QWidget):
 
     def kurs_loeschen_dialog(self):
         kurse = self.help.getAllCourseIDs()
-        dialog = KursLoeschenDialog(kurse)
+        dialog = DeleteCourseDialog(kurse, self.help)
         dialog.exec_()
         
     def oeffne_export_scorecard_dialog(self):

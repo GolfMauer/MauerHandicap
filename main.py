@@ -17,6 +17,8 @@ import os
 class KursLoeschenDialog(QtWidgets.QDialog):
     def __init__(self, kurse):
         super().__init__()
+        
+
         self.setWindowTitle("Kurs Löschen")
         layout = QtWidgets.QVBoxLayout()
         self.setFixedSize(400, 450)
