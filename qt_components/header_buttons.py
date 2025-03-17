@@ -4,6 +4,7 @@ from packages.helper import Helper
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtWidgets
 from qt_components.new_game_dialog import NewGameDialog
+from qt_components.new_course_dialog import NewCourseDialog
 
 
 class HeaderButton(QtWidgets.QWidget):
@@ -38,7 +39,7 @@ class HeaderButton(QtWidgets.QWidget):
             self.parent().update()
 
     def neuer_kurs_hinzugefuegt(self):
-        dialog = NewGameDialog()
+        dialog = NewCourseDialog(self.help)
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
             dialog.get_kurs_daten()
             self.parent().update()
