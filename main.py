@@ -8,6 +8,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from qt_components.debug_button import DebugButtons
+from qt_components.header_buttons import HeaderButton
 
 from tinydb import TinyDB
 from packages.helper  import Helper
@@ -335,67 +336,51 @@ class ExportScorecardDialog(QtWidgets.QDialog):
         file_path = getattr(self, 'selected_file_path', None)
         use_last_values = self.use_last_values_checkbox.isChecked()
         return kurs, is_whs, file_path, kurs_rating, slope_rating, stroke_indices, use_last_values
-            
 
 class HandicapUI(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Golf Handicap Rechner")
-
-        # Dark Mode Farbpalette
+        # create color palette
         self.dark_palette = QtGui.QPalette()
-        self.dark_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
-        self.dark_palette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
-        self.dark_palette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
-        self.dark_palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(53, 53, 53))
-        self.dark_palette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
-        self.dark_palette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
-        self.dark_palette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
-        self.dark_palette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
-        self.dark_palette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
-        self.dark_palette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
-        self.dark_palette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
-        self.dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
-        self.dark_palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
-        self.setPalette(self.dark_palette)
-        self.setWindowIcon(QIcon("./mauerIcon.ico"))
-        app.setStyle('Fusion') 
+        
+        # main component
+        self.layout = QtWidgets.QVBoxLayout()
 
-        layout = QtWidgets.QVBoxLayout()
+        self.headerButton = HeaderButton(help, self)
+        
 
-        button_layout = QtWidgets.QHBoxLayout()
+        button_header = QtWidgets.QHBoxLayout()
         self.neues_spiel_button = QtWidgets.QPushButton("Neues Spiel")
         self.neuer_kurs_button = QtWidgets.QPushButton("Neuer Kurs")
         self.kurs_löschen_button = QtWidgets.QPushButton("Kurs Löschen")
         self.export_scorecard_button = QtWidgets.QPushButton("Scorecard Exportieren")
-        button_layout.addWidget(self.neues_spiel_button)
-        button_layout.addWidget(self.neuer_kurs_button)
-        button_layout.addWidget(self.kurs_löschen_button)
-        button_layout.addWidget(self.export_scorecard_button) 
-        layout.addLayout(button_layout)
+        button_header.addWidget(self.neues_spiel_button)
+        button_header.addWidget(self.neuer_kurs_button)
+        button_header.addWidget(self.kurs_löschen_button)
+        button_header.addWidget(self.export_scorecard_button) 
+        self.layout.addLayout(button_header)
 
         self.ega_handicap_label = QtWidgets.QLabel("Aktuelles EGA Handicap: N/A")
         self.ega_handicap_label.setStyleSheet("font-size: 20px; color: white;")
-        layout.addWidget(self.ega_handicap_label)
+        self.layout.addWidget(self.ega_handicap_label)
 
         self.whs_handicap_label = QtWidgets.QLabel("Aktuelles WHS Handicap: N/A")
         self.whs_handicap_label.setStyleSheet("font-size: 20px; color: white;")
-        layout.addWidget(self.whs_handicap_label)
+        self.layout.addWidget(self.whs_handicap_label)
 
         self.figure = Figure(facecolor='#353535')
         self.canvas = FigureCanvas(self.figure)
-        layout.addWidget(self.canvas)
+        self.layout.addWidget(self.canvas)
 
         self.spiele_tabelle = QtWidgets.QTableWidget()
         self.spiele_tabelle.setColumnCount(3)
         self.spiele_tabelle.setHorizontalHeaderLabels(["Datum", "Kurs", "Schläge"])
-        layout.addWidget(self.spiele_tabelle)
+        self.layout.addWidget(self.spiele_tabelle)
 
 
         self.debug_buttons = DebugButtons(help, self)
-        layout.addWidget(self.debug_buttons)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
 
         self.neues_spiel_button.clicked.connect(self.oeffne_neues_spiel_dialog)
         self.neuer_kurs_button.clicked.connect(self.neuer_kurs_hinzugefuegt)
@@ -404,7 +389,37 @@ class HandicapUI(QtWidgets.QWidget):
 
 
         
+        self.initUI()
+
+    def initUI(self):
+        app.setStyle('Fusion') 
+        self.setWindowTitle("Golf Handicap Rechner")
+        self.setWindowIcon(QIcon("./mauerIcon.ico"))
+        self.setColors()
+        
+        self.layout.addWidget(self.headerButton)
+
+        self.layout.addWidget(self.debug_buttons)
+
+
         self.update()
+
+
+    def setColors(self):
+            self.dark_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
+            self.dark_palette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
+            self.dark_palette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
+            self.dark_palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(53, 53, 53))
+            self.dark_palette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
+            self.dark_palette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
+            self.dark_palette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
+            self.dark_palette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
+            self.dark_palette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
+            self.dark_palette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
+            self.dark_palette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
+            self.dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
+            self.dark_palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
+            self.setPalette(self.dark_palette)
 
     def oeffne_neues_spiel_dialog(self):
         kurse = help.getAllCourseIDs()

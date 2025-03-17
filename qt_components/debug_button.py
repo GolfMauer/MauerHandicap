@@ -19,15 +19,13 @@ class DebugButtons(QtWidgets.QWidget):
         self.truncate_button = QtWidgets.QPushButton("Clear DB", self)
         self.truncate_button.clicked.connect(self.truncate_db)
         
-        layout = QtWidgets.QVBoxLayout()
+        layout = QtWidgets.QHBoxLayout()
 
         layout.addWidget(self.lade_courses_button)
         layout.addWidget(self.lade_games_button)
         layout.addWidget(self.truncate_button)
 
         self.setLayout(layout)
-
-        self.update()
 
 
     def truncate_db(self):
