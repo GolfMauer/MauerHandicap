@@ -4,9 +4,8 @@ matplotlib.use('Qt5Agg')
 from PyQt5 import QtWidgets, QtGui, QtCore
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from datetime import datetime
 
-from tinydb import Query, TinyDB
+from tinydb import TinyDB
 from packages.helper  import Helper
 import os
 
