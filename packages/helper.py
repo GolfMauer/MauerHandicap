@@ -1,13 +1,12 @@
-from tinydb import TinyDB, Query, where
+from datetime import date, datetime
 import json
-from datetime import date, datetime, timedelta
 from os import listdir
 from os.path import isfile, join
+import uuid
+from tinydb import TinyDB, Query, where
 import handicapWHS as whs
 import handicapEGA as ega
-import uuid
 from fpdf import FPDF
-import handicapEGA as ega
 
 class Helper:
     def __init__(self, games, courses, hcLog):
