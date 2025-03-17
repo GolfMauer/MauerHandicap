@@ -8,6 +8,7 @@ import handicapWHS as whs
 import handicapEGA as ega
 from fpdf import FPDF
 
+
 class Helper:
     def __init__(self, games, courses, hcLog):
         self.games = games
@@ -292,7 +293,6 @@ class Helper:
             if is_whs is None:
                 raise AttributeError("Attribute is_whs missing.")
 
-
         # I don't trust that I won't accidentally be overwriting things
         course_copy = course.copy()
 
@@ -302,7 +302,7 @@ class Helper:
                 "course_rating_override",
                 "slope_rating_override",
                 "handicap_stroke_index_override",
-                "is_whs_scorecard"
+                "is_whs_scorecard",
             ]
             for field in required_fields:
                 if field not in course or course[field] is None:
@@ -311,22 +311,42 @@ class Helper:
 
             course_copy["course_rating"] = course["course_rating_override"]
             course_copy["slope_rating"] = course["slope_rating_override"]
-            course_copy["handicap_stroke_index"] = course["handicap_stroke_index_override"]
+            course_copy["handicap_stroke_index"] = course[
+                "handicap_stroke_index_override"
+            ]
             course_copy["is_whs_scorecard"] = course["is_whs_scorecard"]
         else:
+
             course_copy["is_whs_scorecard"] = is_whs
-            self.courses.update({"is_whs_scorecard": is_whs}, where('courseID') == course["courseID"])
+            self.courses.update(
+                {"is_whs_scorecard": is_whs}, where("courseID") == course["courseID"]
+            )
             if cr_override is not None:
                 course_copy["course_rating"] = cr_override
-                self.courses.update({"course_rating_override": cr_override}, where('courseID') == course["courseID"])
+                self.courses.update(
+                    {"course_rating_override": cr_override},
+                    where("courseID") == course["courseID"],
+                )
 
             if sr_override is not None:
+                if not (55 <= sr_override <= 155):
+                    raise ValueError(
+                        f"Invalid parameter: {sr_override}. Must be between 55 and 155."
+                    )
                 course_copy["slope_rating"] = sr_override
-                self.courses.update({"slope_rating_override": sr_override}, where('courseID') == course["courseID"])
+                self.courses.update(
+                    {"slope_rating_override": sr_override},
+                    where("courseID") == course["courseID"],
+                )
 
             if hcp_override is not None:
+                if not set(hcp_override) == set(range(0,19)):
+                    raise ValueError("Handicap stroke index override is incorrect. Make sure you are only using numbers from 1 to 18.")
                 course_copy["handicap_stroke_index"] = hcp_override
-                self.courses.update({"handicap_stroke_index_override": hcp_override}, where('courseID') == course["courseID"])
+                self.courses.update(
+                    {"handicap_stroke_index_override": hcp_override},
+                    where("courseID") == course["courseID"],
+                )
 
         hci = self.get_last_hci(course_copy["is_whs_scorecard"])
 
@@ -382,7 +402,7 @@ def prepare_table_data(
         False, hci, course["course_rating"], course["slope_rating"], sum(course["par"])
     )
     allocation_marker = "/"
-    if hc_strokes < 0 :
+    if hc_strokes < 0:
         allocation_marker = "="
     strokes = ega.spreadPlayingHC(course, hc_strokes, False)
     stroke_allocation = list(map(abs, [x - y for x, y in zip(strokes, par)]))
@@ -404,21 +424,22 @@ def prepare_table_data(
         rows.append(row)
     rows.append(("OUT", str(sum(par[0:9])), "", "", ""))
 
-    for i in range(9, 18):
-        row = tuple(
-            map(
-                str,
-                (
-                    i + 1,
-                    par[i],
-                    course["handicap_stroke_index"][i],
-                    allocation_marker * stroke_allocation[i],
-                    "",
-                ),
+    if len(course["par"]) == 18:
+        for i in range(9, 18):
+            row = tuple(
+                map(
+                    str,
+                    (
+                        i + 1,
+                        par[i],
+                        course["handicap_stroke_index"][i],
+                        allocation_marker * stroke_allocation[i],
+                        "",
+                    ),
+                )
             )
-        )
-        rows.append(row)
-    rows.append(("IN", str(sum(par[9:18])), "", "", ""))
+            rows.append(row)
+        rows.append(("IN", str(sum(par[9:18])), "", "", ""))
     rows.append(("GESAMT", str(sum(par)), "", str(hc_strokes), ""))
 
     return rows
