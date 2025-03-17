@@ -9,7 +9,6 @@ from tinydb import TinyDB
 from packages.helper  import Helper
 import os
 
-
 class NeuesSpielDialog(QtWidgets.QDialog):
     def __init__(self, kurse):
         super().__init__()
@@ -80,7 +79,8 @@ class NeuesSpielDialog(QtWidgets.QDialog):
         loch_bool = (locher == 9)
         
         help.addGame(kurs, schlagzahlen, loch_bool, 0, 0)
-
+        self.neun_loch_radio.toggled.connect(self.update_schlagzahl_eingabe)
+        self.achtzehn_loch_radio.toggled.connect(self.update_schlagzahl_eingabe)
 class NeuerKursDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
