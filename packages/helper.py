@@ -289,6 +289,24 @@ class Helper:
         """
         return [course["courseID"] for course in self.courses.all()]
     
+    def delete_course_item(self, courseID: str) -> bool:
+        """
+        Löscht einen Kurs anhand seiner ID aus der Datenbank.
+
+        Returns:
+        bool: True, wenn der Kurs erfolgreich gelöscht wurde, sonst False.
+        """
+
+        query = Query()
+        result = self.courses.remove(query.courseID == courseID)
+
+        if result:
+            print("gelöscht")
+            return True
+        else:
+            print("löschen fehlgeschlaagen")
+            return False
+
     def getCourseByID(self, courseID: str) -> dict:
         """
         Returns a course as a dictionary given its ID.

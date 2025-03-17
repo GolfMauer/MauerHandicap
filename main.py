@@ -193,6 +193,32 @@ class NeuerKursDialog(QtWidgets.QDialog):
 
         help.addCourse(kurs_name, int(kurs_rating), int(slope_rating), pars, stroke_indices)
 
+class KursLoeschenDialog(QtWidgets.QDialog):
+    def __init__(self, kurse):
+        super().__init__()
+        self.setWindowTitle("Kurs Löschen")
+        layout = QtWidgets.QVBoxLayout()
+        self.setFixedSize(400, 450)
+        
+        self.kurs_combo = QtWidgets.QComboBox()
+        self.kurs_combo.addItems(kurse)
+        layout.addWidget(self.kurs_combo)
+        
+        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.delete_course)
+        button_box.rejected.connect(self.close_popup)
+        layout.addWidget(button_box)
+        
+        self.setLayout(layout)
+
+    def delete_course(self):
+        current_item = self.kurs_combo.currentText()
+        help.delete_course_item(current_item)
+        self.close()
+        
+    def close_popup(self):
+        self.close()
+
 class ExportScorecardDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
@@ -335,9 +361,11 @@ class HandicapUI(QtWidgets.QWidget):
         button_layout = QtWidgets.QHBoxLayout()
         self.neues_spiel_button = QtWidgets.QPushButton("Neues Spiel")
         self.neuer_kurs_button = QtWidgets.QPushButton("Neuer Kurs")
+        self.kurs_löschen_button = QtWidgets.QPushButton("Kurs Löschen")
         self.export_scorecard_button = QtWidgets.QPushButton("Scorecard Exportieren")#------------------------------------
         button_layout.addWidget(self.neues_spiel_button)
         button_layout.addWidget(self.neuer_kurs_button)
+        button_layout.addWidget(self.kurs_löschen_button)
         button_layout.addWidget(self.export_scorecard_button) #------------------------------------
         layout.addLayout(button_layout)
 
@@ -362,6 +390,7 @@ class HandicapUI(QtWidgets.QWidget):
 
         self.neues_spiel_button.clicked.connect(self.oeffne_neues_spiel_dialog)
         self.neuer_kurs_button.clicked.connect(self.neuer_kurs_hinzugefuegt)
+        self.kurs_löschen_button.clicked.connect(self.kurs_loeschen_dialog)
         self.export_scorecard_button.clicked.connect(self.oeffne_export_scorecard_dialog) #------------------------------------
 
         self.update()
@@ -379,6 +408,11 @@ class HandicapUI(QtWidgets.QWidget):
             dialog.get_kurs_daten()
             self.update()
 
+    def kurs_loeschen_dialog(self):
+        kurse = help.getAllCourseIDs()
+        dialog = KursLoeschenDialog(kurse)
+        dialog.exec_()
+        
     def oeffne_export_scorecard_dialog(self): #-----------------------------------------
         dialog = ExportScorecardDialog()
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
