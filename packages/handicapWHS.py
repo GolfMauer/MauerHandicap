@@ -1,6 +1,6 @@
 # sauce https://www.usga.org/handicapping/roh/2020-rules-of-handicapping.html
 import statistics as stats
-from packages import handicapEGA
+from packages.handicapEGA import roundHalfUp, spreadPlayingHC
 
 # implements 5.2a
 def handicap(games: list[dict], lowHandicap: float) -> float:
@@ -98,16 +98,18 @@ def handicapDifferential(game: dict, course: dict, handicapIndex:float) -> dict:
     
 
     # implements 5.1a and 2.2a
-    if len(game["shots"]) > 9:
+    if len(game["shots"]) > 18:
+        raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game can have at most 18 holes.")
+    elif len(game["shots"]) < 9:
+        raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game needs to have 9 or more played holes.")
+    elif len(game["shots"]) > 9:
         differential =(adjusted - course["course_rating"] + game["pcc"] ) * (113 / course["slope_rating"])
     # implements 5.1b and 2.2b
     elif len(game["shots"]) == 9:
         # calculation according to https://serviceportal.dgv-intranet.de/regularien/whs-handicap-regeln/i22533_1_Handicap_Regeln_2024.cfm
-        score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slope_rating"])/2
+        score = (adjusted - course["course_rating"] + 0.5 * game["pcc"] ) * (113 / course["slope_rating"])
         expectedScore = ((handicapIndex * 1.04) + 2.4) / 2
         differential = score + expectedScore
-    else:
-        raise ValueError(f"Invalid parameter: len(game[\"shots\"]) = {len(game["shots"])}. The game needs to have 9 or more played holes.")
     
     # implements 5.9 exceptional score reduction
     delta = handicapIndex - differential

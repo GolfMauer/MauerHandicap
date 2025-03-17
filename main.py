@@ -4,9 +4,8 @@ matplotlib.use('Qt5Agg')
 from PyQt5 import QtWidgets, QtGui, QtCore
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from datetime import datetime
 
-from tinydb import Query, TinyDB
+from tinydb import TinyDB
 from packages.helper  import Helper
 import os
 
@@ -411,7 +410,7 @@ class HandicapUI(QtWidgets.QWidget):
 
         log = help.getHCLog()
 
-        dates = [entry['date'] for entry in log]
+        indices = list(range(1, len(log) + 1))
         ega_handicaps = [entry['ega'] for entry in log]
         whs_handicaps = [entry['whs'] for entry in log]
 
@@ -427,8 +426,8 @@ class HandicapUI(QtWidgets.QWidget):
         ax.xaxis.label.set_color('white')
         ax.title.set_color('white')
 
-        ax.plot(dates, ega_handicaps, label='EGA Handicap', color='blue')
-        ax.plot(dates, whs_handicaps, label='WHS Handicap', color='red')
+        ax.plot(indices, ega_handicaps, label='EGA Handicap', color='blue')
+        ax.plot(indices, whs_handicaps, label='WHS Handicap', color='red')
         ax.legend()
 
         self.canvas.draw()

@@ -3,8 +3,8 @@ import json
 from datetime import date, datetime, timedelta
 from os import listdir
 from os.path import isfile, join
-from packages import handicapWHS as whs
-from packages import handicapEGA as ega
+import packages.handicapWHS as whs
+import packages.handicapEGA as ega
 import uuid
 from fpdf import FPDF
 
@@ -308,7 +308,7 @@ class Helper:
 
     def export_scorecard(
         self,
-        course: dict,
+        course: str,
         is_whs: bool,
         filepath: str,
         cr_override: float | None = None,
@@ -319,7 +319,7 @@ class Helper:
         """Generates a Scorecard as PDF and outputs it to given filepath
 
         Args:
-            course (dict): The Course being played on
+            course (str): The ID of the course being played on
             hci (float): The Handicap Index of the player
             pcc (int): PCC or CBA of the game
             filepath (str): The location and filename the scorecard should be saved to
@@ -328,6 +328,7 @@ class Helper:
 
         # I don't trust that I won't accidentally be overwriting things
         # and I'm too lazy to copy these into their own variables
+        course = self.getCourseByID(course)
         course = course.copy()
         
         
