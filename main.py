@@ -3,6 +3,7 @@ import sys
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -357,7 +358,8 @@ class HandicapUI(QtWidgets.QWidget):
         self.dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
         self.dark_palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
         self.setPalette(self.dark_palette)
-        app.setStyle('Fusion')  # Stil anpassen
+        self.setWindowIcon(QIcon("./mauerIcon.ico"))
+        app.setStyle('Fusion') 
 
         layout = QtWidgets.QVBoxLayout()
 
