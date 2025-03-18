@@ -45,7 +45,7 @@ class Helper:
         whsHC = whs.handicap(latestGames, lowHandicap["whs"])
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap[0]["ega"], course)
 
-        data = { "whs": round(whsHC, 1), "ega": round(egaHC, 1), "date": gameDate }
+        data = { "whs": round(whsHC, 1), "ega": round(float(egaHC), 1), "date": gameDate }
 
         self.hcLog.insert(data)
         
