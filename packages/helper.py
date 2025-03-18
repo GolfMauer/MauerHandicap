@@ -232,7 +232,7 @@ class Helper:
         if data != [] and (datetime.fromisoformat(data[0]["date"]) - startDate).days != 0:
             for i, doc in enumerate(log):
                 if (datetime.fromisoformat(doc["date"]) - startDate).days == 0:
-                    data = log[i -1] + data
+                    data = [log[i -1]] + data
                     break
 
         # add last game spill over
