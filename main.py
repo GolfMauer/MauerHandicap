@@ -1,9 +1,9 @@
-from datetime import datetime
 import sys
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -23,10 +23,12 @@ class HandicapUI(QtWidgets.QWidget):
 
         self.ega_handicap_label = QtWidgets.QLabel("Aktuelles EGA Handicap: N/A")
         self.ega_handicap_label.setStyleSheet("font-size: 20px; color: white;")
+        self.ega_handicap_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.ega_handicap_label)
 
         self.whs_handicap_label = QtWidgets.QLabel("Aktuelles WHS Handicap: N/A")
         self.whs_handicap_label.setStyleSheet("font-size: 20px; color: white;")
+        self.whs_handicap_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.whs_handicap_label)
 
         self.figure = Figure(facecolor='#353535')
@@ -61,14 +63,13 @@ class HandicapUI(QtWidgets.QWidget):
 
     def update(self):
         new_games = help.getLastGames()
+        log = help.getHCLog()
         try:
-            new_game = new_games[-1]
-            new_handicap = help.getHCLog(startDate=new_game["date"])
-            self.ega_handicap_label.setText(f"Aktuelles EGA Handicap: {new_handicap["ega"]}")
-            self.whs_handicap_label.setText(f"Aktuelles WHS Handicap: {new_handicap['whs']}")
+            self.ega_handicap_label.setText(f"Aktuelles EGA Handicap: {log[0]["ega"]}")
+            self.whs_handicap_label.setText(f"Aktuelles WHS Handicap: {log[0]['whs']}")
         except:
-            self.ega_handicap_label.setText("Aktuelles EGA Handicap: N/A")
-            self.whs_handicap_label.setText("Aktuelles WHS Handicap: N/A")
+            self.ega_handicap_label.setText("Aktuelles EGA Handicap: Error")
+            self.whs_handicap_label.setText("Aktuelles WHS Handicap: Error")
 
         self.spiele_tabelle.setRowCount(len(new_games))
         for i, game in enumerate(new_games):
@@ -79,8 +80,7 @@ class HandicapUI(QtWidgets.QWidget):
             self.spiele_tabelle.setItem(i, 1, QtWidgets.QTableWidgetItem(kurs))
             self.spiele_tabelle.setItem(i, 2, QtWidgets.QTableWidgetItem(str(schlaege)))
 
-        log = help.getHCLog()
-
+        log.reverse()
         indices = list(range(1, len(log) + 1))
         ega_handicaps = [entry['ega'] for entry in log]
         whs_handicaps = [entry['whs'] for entry in log]
