@@ -68,8 +68,8 @@ class HandicapUI(QtWidgets.QWidget):
             self.ega_handicap_label.setText(f"Aktuelles EGA Handicap: {log[0]["ega"]}")
             self.whs_handicap_label.setText(f"Aktuelles WHS Handicap: {log[0]['whs']}")
         except:
-            self.ega_handicap_label.setText("Aktuelles EGA Handicap: Error")
-            self.whs_handicap_label.setText("Aktuelles WHS Handicap: Error")
+            self.ega_handicap_label.setText("Aktuelles EGA Handicap: N/A")
+            self.whs_handicap_label.setText("Aktuelles WHS Handicap: N/A")
 
         self.spiele_tabelle.setRowCount(len(new_games))
         for i, game in enumerate(new_games):

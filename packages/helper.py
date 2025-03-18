@@ -420,10 +420,12 @@ def prepare_table_data(
         A tuple of tuples representing the rows of the table
     """
     par = course["par"].copy()
+    
+    is9Hole = True if len(course["par"]) == 9 else False
     hc_strokes = ega.playingHandicap(
-        False, hci, course["course_rating"], course["slope_rating"], sum(course["par"])
+        is9Hole, hci, course["course_rating"], course["slope_rating"], sum(course["par"])
     )
-    strokes = ega.spreadPlayingHC(course, hc_strokes, False)
+    strokes = ega.spreadPlayingHC(course, hc_strokes, is9Hole)
     stroke_allocation = [x - y for x, y in zip(strokes, par)]
     # Hole#, Par, HCP, hcp-strokes, shots taken (empty)
     rows = []
