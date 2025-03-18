@@ -14,6 +14,15 @@ from tinydb import TinyDB
 from packages.helper  import Helper
 import os
 
+# TODO
+# HClog entries have the same timestamp if multiple added in same session
+# block game creation of courses empty
+# When error open window and display error message
+# only numbers for slope / course rating 
+# date instead of numbers for graph
+# no negative shots
+# no graph at first game
+
 class HandicapUI(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()     

@@ -108,7 +108,7 @@ class Helper:
                 nineHole: bool,
                 pcc: int=0 ,
                 cba: int=0,
-                gameDate: datetime | str=datetime.now(),
+                gameDate: datetime | str=None,
                 handicapAllowance: float = 1
                 ) -> str:
         """
@@ -125,6 +125,7 @@ class Helper:
 
         Returns: str: the uuid in hex format
         """
+        gameDate = datetime.now() if gameDate == None else gameDate
 
         id = uuid.uuid4().hex
         game = { 
