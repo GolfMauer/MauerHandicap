@@ -46,10 +46,6 @@ class Helper:
         egaHC = ega.calculateNewHandicap(game, cba, previousHandicap[0]["ega"], course)
 
         data = { "whs": round(whsHC, 1), "ega": round(egaHC, 1), "date": gameDate }
-        
-        # remove current HC if it is from the same day
-        HC = Query()
-        self.hcLog.remove(HC.date.test(lambda d: datetime.fromisoformat(d).date() == datetime.fromisoformat(gameDate)))
 
         self.hcLog.insert(data)
         
