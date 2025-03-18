@@ -11,8 +11,8 @@ class DebugButtons(QtWidgets.QWidget):
     def __init__(self, help: Helper, parent=None):
         super().__init__(parent)
         self.help = help
-        self.lade_games_button = QtWidgets.QPushButton("Import Lade Games", self)
-        self.lade_courses_button = QtWidgets.QPushButton("Import Lade Courses", self)
+        self.lade_games_button = QtWidgets.QPushButton("Import Test Games", self)
+        self.lade_courses_button = QtWidgets.QPushButton("Import Test Courses", self)
         self.lade_games_button.clicked.connect(self.add_lade_games)
         self.lade_courses_button.clicked.connect(self.add_lade_courses)
 

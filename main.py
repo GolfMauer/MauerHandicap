@@ -27,31 +27,32 @@ class HandicapUI(QtWidgets.QWidget):
         # main component
         self.layout = QtWidgets.QVBoxLayout()
 
+        # new component based buttons move to top of init for correct order
+        self.header_button = HeaderButton(help, self)
+        self.debug_buttons = DebugButtons(help, self)
 
         self.ega_handicap_label = QtWidgets.QLabel("Aktuelles EGA Handicap: N/A")
         self.ega_handicap_label.setStyleSheet("font-size: 20px; color: white;")
         self.ega_handicap_label.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.ega_handicap_label)
 
         self.whs_handicap_label = QtWidgets.QLabel("Aktuelles WHS Handicap: N/A")
         self.whs_handicap_label.setStyleSheet("font-size: 20px; color: white;")
         self.whs_handicap_label.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.whs_handicap_label)
 
         self.figure = Figure(facecolor='#353535')
         self.canvas = FigureCanvas(self.figure)
-        self.layout.addWidget(self.canvas)
 
         self.spiele_tabelle = QtWidgets.QTableWidget()
         self.spiele_tabelle.setColumnCount(3)
         self.spiele_tabelle.setHorizontalHeaderLabels(["Datum", "Kurs", "Schläge"])
-        self.layout.addWidget(self.spiele_tabelle)
-
-        # new component based buttons move to top of init for correct order
-        self.header_button = HeaderButton(help, self)
-        self.debug_buttons = DebugButtons(help, self)
         self.initUI()
 
+        self.layout.addWidget(self.ega_handicap_label)
+        self.layout.addWidget(self.whs_handicap_label)
+
+        self.layout.addWidget(self.canvas)
+        self.layout.addWidget(self.spiele_tabelle)
+        self.layout.addWidget(self.debug_buttons)
         self.setLayout(self.layout)
 
 
@@ -62,7 +63,6 @@ class HandicapUI(QtWidgets.QWidget):
         
         self.layout.addWidget(self.header_button)
 
-        self.layout.addWidget(self.debug_buttons)
 
 
         self.update()
