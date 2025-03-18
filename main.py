@@ -9,15 +9,13 @@ from matplotlib.figure import Figure
 
 from qt_components.debug_button import DebugButtons
 from qt_components.header_buttons import HeaderButton
+from qt_components.error_dialog import ErrorDialog
 
 from tinydb import TinyDB
 from packages.helper  import Helper
 import os
 
 # TODO
-# HClog entries have the same timestamp if multiple added in same session
-# block game creation of courses empty
-# When error open window and display error message
 # only numbers for slope / course rating 
 # date instead of numbers for graph
 # no negative shots
@@ -133,6 +131,13 @@ def setColors():
     
     return dark_palette
 
+
+def global_exception_handler(exc_type, exc_value, exc_traceback):
+    """Catches all unhandled exceptions and shows an error dialog."""
+    error_message = f"{exc_type.__name__}: {exc_value}"
+    error_dialog = ErrorDialog(error_message)
+    error_dialog.exec_()
+
 if __name__ == "__main__":
     db_dir = "./db"  # should maybe be changed to %APPDATA%
     db_path = os.path.join(db_dir, "db.json")
@@ -153,6 +158,9 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     app.setPalette(setColors())
+    
+    sys.excepthook = global_exception_handler  
+    
     ui = HandicapUI()
     ui.show()
     sys.exit(app.exec_())
